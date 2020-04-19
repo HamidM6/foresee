@@ -1,6 +1,0 @@
-stat_model,model_params
-sarimax,"""{'order': (1,0,0), 'seasonal_order':(0,0,0,0)}"""
-holt_winters,"""{}"""
-prophet,"""{}"""
-fft,"""{}"""
-ewm,"""{}"""

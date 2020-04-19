@@ -2,25 +2,26 @@
 exponentially weighted moving average
 """
 
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
 
-def fit_ewm(data_param_dict):
+def fit_ewm(ts, freq, forecast_len, model_params):
     
     model = 'ewm_model'
+    ewm_params = model_params[model]
     
-    if time_grain == 'month':
-        span = 2
-    else:
-        span = 4
+    span = 5
+    
+    
+    
     try:
         
-        ewm_model = input_endog.ewm(span=span)
-        ewm_fittedvalues = numpy.round(ewm_model.mean())
+        ewm_model = pd.Series(ts).ewm(span=span)
+        ewm_fittedvalues = np.round(ewm_model.mean())
         
-        ewm_forecast = numpy.empty(forecast_length)
+        ewm_forecast = np.empty(forecast_len)
         ewm_forecast.fill(ewm_fittedvalues.iloc[-1])
-        ewm_forecast = pandas.Series(ewm_forecast)
+        ewm_forecast = pd.Series(ewm_forecast)
         err = None
 
     except Exception as e:

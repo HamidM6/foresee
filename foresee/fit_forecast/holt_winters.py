@@ -4,40 +4,37 @@ Holt-Winters
 
 from statsmodels.tsa.holtwinters import ExponentialSmoothing 
 
-def fit_holt_winters(data_param_dict):
+def fit_holt_winters(ts, freq, forecast_len, model_params):
     
     model = 'holt_winters'
+    hw_params = model_params[model]
     
-    if time_grain == 'week':
-        seasonal_periods = 52
-    elif time_grain == 'month':
-        seasonal_periods = 12
     
     try:                           
         
-        holt_winters_model = ExponentialSmoothing(
-                                                    endog = input_endog,
-                                                    trend = 'add',
-                                                    damped = True,
-                                                    seasonal = 'add',
-                                                    seasonal_periods = seasonal_periods
-                                                  ).fit(
-                                                        optimized = True
-                                                       )
+        hw_model = ExponentialSmoothing(
+                                            endog = ts,
+                                            trend = 'add',
+                                            damped = True,
+                                            seasonal = 'add',
+                                            seasonal_periods = freq
+                                          ).fit(
+                                                optimized = True
+                                               )
 
-        holt_winters_fittedvalues = holt_winters_model.fittedvalues.round().clip(lower=0)     
+        hw_fittedvalues = hw_model.fittedvalues    
 
-        holt_winters_forecast = holt_winters_model.predict(
-                                                                start = input_length,
-                                                                end =   input_length + forecast_length - 1
-                                                            ).round().clip(lower=0)
+        hw_forecast = hw_model.predict(
+                                            start = len(ts),
+                                            end =   len(ts) + forecast_len - 1
+                                        )
         err = None
         
     except Exception as e:
         
-        holt_winters_model = None
-        holt_winters_fittedvalues = None
-        holt_winters_forecast = None
+        hw_model = None
+        hw_fittedvalues = None
+        hw_forecast = None
         err = str(e)
         
-    return holt_winters_model, holt_winters_fittedvalues, holt_winters_forecast, err
+    return hw_model, hw_fittedvalues, hw_forecast, err

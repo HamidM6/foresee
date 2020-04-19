@@ -38,14 +38,10 @@ class suppress_stdout_stderr(object):
 
             
             
-def fit_prophet(data_param_dict):
+def fit_prophet(ts, freq, forecast_len, model_params):
     
     model = 'prophet'
-    if time_grain == 'week':
-        freq = 'W-SAT'                
-
-    elif time_grain == 'month':
-        freq = 'M'
+    prophet_params = model_params[model]
         
     try:
         
