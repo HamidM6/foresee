@@ -3,11 +3,11 @@
 fitter class
 """
 
-from foresee.fit_forecast.holt_winters import fit_holt_winters
-from foresee.fit_forecast.sarimax import fit_sarimax
-from foresee.fit_forecast.ewm import fit_ewm
-from foresee.fit_forecast.prophet import fit_prophet
-from foresee.fit_forecast.fft import fit_fft
+from fit_forecast.holt_winters import fit_holt_winters
+from fit_forecast.sarimax import fit_sarimax
+from fit_forecast.ewm import fit_ewm
+from fit_forecast.prophet import fit_prophet
+from fit_forecast.fft import fit_fft
 
 class fitter:
     

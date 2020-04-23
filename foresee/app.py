@@ -1,8 +1,13 @@
 
 #https://dash.plotly.com/dash-core-components/upload
+# import os
+# os.chdir('C:\\Users\\abc_h\\Desktop\\github\\foresee\\foresee')
+
+
 import base64
 import datetime
 import io
+import pandas as pd
 
 import dash
 from dash.dependencies import Input, Output, State
@@ -10,7 +15,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-import pandas as pd
+import main
+
+# ts_results = main.collect_result()
+# sm_name = list(ts_results[1])
+sm_name = 'main is not running'
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -40,24 +49,30 @@ app.layout = html.Div([
     
     html.Div(id='output-data-upload', style={'width': '50%'}),
     
-    html.H5('Select or Drop Models'),
+    html.H5('Select or Remove Models'),
     
     dcc.Checklist(
+        id='model-options',
         options=[
             {'label': 'FFT', 'value': 'fft'},
-            {'label': 'Holt Winters', 'value': 'hw'},
+            {'label': 'Holt Winters', 'value': 'holt_winters'},
             {'label': 'Sarimax', 'value': 'sarimax'}
         ],
-        value=['fft', 'hw', 'sarimax'],
+        value=['fft', 'holt_winters', 'sarimax'],
         labelStyle={'display': 'inline-block'}
     ),
     
-    html.Div(id='output-data-name', style={'width': '50%'}),
+    html.Div(id='model-list', style={'width': '50%'}),
+    html.Hr(),
+    
+    html.Div(id='output-result', style={'width': '50%'}),
+    html.Hr(),
+    dcc.Markdown(children=sm_name),
     
 ])
 
-
-def parse_contents(contents, filename):
+### read user input
+def read_contents(contents, filename):
     content_type, content_string = contents.split(',')
 
     decoded = base64.b64decode(content_string)
@@ -69,30 +84,51 @@ def parse_contents(contents, filename):
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+            
+        return df
+        
     except Exception as e:
-        print(e)
+        return str(e)
+
+### display user input
+def parse_contents(contents, filename):
+    
+    content = read_contents(contents, filename)
+    
+    if type(content) == str :
+        return html.Div([err])
+    
+    else:
         return html.Div([
-            'There was an error processing this file.'
+            html.H5(filename),
+
+            dash_table.DataTable(
+
+                data=content.head(3).to_dict('records'),
+
+                columns=[{'name': i, 'id': i} for i in content.columns],
+            ),
+            html.Hr(),
+        ])
+    
+
+### display dataframe
+def display_dataframe(df, name):
+    
+    if df is None:
+        return html.Div(['there is no dataframe to display'])
+        
+    else:
+        return html.Div([
+            html.H5(name),
+            dash_table.DataTable(
+                data=df.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df.columns],
+            ),
+            html.Hr(),
         ])
 
-    return html.Div([
-        html.H5(filename),
-
-        dash_table.DataTable(
-                
-            data=df.head(3).to_dict('records'),
-            
-            columns=[{'name': i, 'id': i} for i in df.columns],
-        ),
-        html.Hr(),  # horizontal line
-
-    ])
-
-def parse_names(filename):
     
-    return html.Div([html.H6(filename)])
-
-
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')],
               [State('upload-data', 'filename')])
@@ -104,12 +140,40 @@ def update_output(list_of_contents, list_of_names):
             zip(list_of_contents, list_of_names)]
         return children
 
-@app.callback(Output('output-data-name', 'children'),
-              [Input('upload-data')],
-              [State('filename')])
+    
+    
+@app.callback(Output('model-list', 'children'),
+              [Input('model-options', 'value')])
 
-def update_output_div(list_of_names):
-    return list_of_names
+def parse_selected_models(model_list):
+    
+    if model_list is not None:
+        return 'number of selected stat models: ' + str(len(model_list))
+    else:
+        return 'model_list is None'
+    
 
+@app.callback(Output('output-result', 'children'),
+              [Input('upload-data', 'contents'),
+              Input('model-options', 'value')],
+              [State('upload-data', 'filename')])
+
+def parse_result(contents, model_list, filename):
+    if contents is not None:
+        try:
+            df_list = [read_contents(c, f) for c,f in zip(contents, filename)]
+            raw_fact = df_list[0]
+            model_list = model_list
+
+            result = main.collect_result(raw_fact, model_list)
+
+            return display_dataframe(result, 'forecast result')
+        
+        except Exception as e:
+            return 'run failed with err: ' + str(e)
+    
+    
+    
+    
 if __name__ == '__main__':
     app.run_server(debug=True)

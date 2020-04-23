@@ -22,4 +22,21 @@ def read_csv(file_path, file_name):
     
     return pd.read_csv(csv_file)
 
+def transform_dict_to_df(fit_results, model_list):
+    
+    df = pd.DataFrame()
+    
+    for m in model_list:
+        
+        try:
+            fcst = np.concatenate([fit_results[m+'_fitted_values'], fit_results[m+'_forecast']])
+            
+            df[m+'_forecast'] = fcst
+            
+        except:
+            df[m+'_forecast'] = 0
+    
+    
+    return df
+
 

@@ -3,7 +3,7 @@
 manage input and output of forecasting models
 """
 
-import foresee.fitter
+import fitter
 
 def model_fit(ts_fact, model_params, param_config):
     
@@ -19,7 +19,7 @@ def model_fit(ts_fact, model_params, param_config):
     
     for m in model_list:
         
-        f = foresee.fitter.fitter(m)
+        f = fitter.fitter(m)
         
         (
                 fit_result[m+'_modelobj'],
