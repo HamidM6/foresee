@@ -6,6 +6,7 @@ local utility functions
 import os
 import json
 import pandas as pd
+import numpy as np
 
 def read_json(file_path, file_name):
     
@@ -22,21 +23,31 @@ def read_csv(file_path, file_name):
     
     return pd.read_csv(csv_file)
 
+
 def transform_dict_to_df(fit_results, model_list):
     
-    df = pd.DataFrame()
+    df_list = list()
     
-    for m in model_list:
+    for k,v in fit_results.items():
         
-        try:
-            fcst = np.concatenate([fit_results[m+'_fitted_values'], fit_results[m+'_forecast']])
-            
-            df[m+'_forecast'] = fcst
-            
-        except:
-            df[m+'_forecast'] = 0
+        df = pd.DataFrame()
     
+        for m in model_list:
+
+            try:
+                fcst = np.concatenate([v[m+'_fitted_values'], v[m+'_forecast']])
+
+                df[m+'_forecast'] = fcst
+
+            except Exception as e:
+                df[m+'_forecast'] = 0
+                print(e)
+                
+        df['ts_id'] = k
+        df_list.append(df)
+        
+    result = pd.concat(df_list, axis=0, ignore_index=True) 
     
-    return df
+    return result
 
 
