@@ -3,7 +3,7 @@ Prophet: facebook's time series forecasting platform.
 """
 
 from fbprophet import Prophet
-import pandas
+import pandas as pd
 
 import os
 
@@ -38,35 +38,27 @@ class suppress_stdout_stderr(object):
 
             
             
-def fit_prophet(ts, freq, forecast_len, model_params):
+def fit_prophet(df, freq, forecast_len, model_params):
     
     model = 'prophet'
     prophet_params = model_params[model]
+    
+    df.reset_index(drop=True, inplace=True)
         
     try:
         
-        df = pandas.DataFrame({'ds':input_dates, 'y':input_endog})
-        
-        prophet_model = Prophet(
-        
-                                     holidays=holidays, 
-                                     daily_seasonality=daily_seasonality, 
-                                     weekly_seasonality=weekly_seasonality,
-                                     yearly_seasonality=yearly_seasonality,
-                                     changepoint_range  = changepoint_range 
-                                     
-                                 )
+        prophet_model = Prophet()
         
         #with suppress_stdout_stderr():
         prophet_model.fit(df)
             
-        future = prophet_model.make_future_dataframe(periods=forecast_length, freq=freq, include_history=True)
+        future = prophet_model.make_future_dataframe(periods=forecast_len, freq=freq, include_history=True)
         
-        prophet_model_predictions = prophet_model.predict(future)['yhat'].clip(lower=0)
+        prophet_model_predictions = prophet_model.predict(future)['yhat']
         
-        prophet_fittedvalues = prophet_model_predictions.head(input_length)                
+        prophet_fittedvalues = prophet_model_predictions.head(len(df))                
         
-        prophet_forecast = prophet_model_predictions.tail(forecast_length)
+        prophet_forecast = prophet_model_predictions.tail(forecast_len)
         
         err = None
         

@@ -5,19 +5,19 @@ exponentially weighted moving average
 import numpy as np
 import pandas as pd
 
-def fit_ewm(ts, freq, forecast_len, model_params):
+def fit_ewm(df, freq, forecast_len, model_params):
     
     model = 'ewm_model'
     ewm_params = model_params[model]
     
+    ts = df['y'].values
+    
     span = 5
-    
-    
     
     try:
         
         ewm_model = pd.Series(ts).ewm(span=span)
-        ewm_fittedvalues = np.round(ewm_model.mean())
+        ewm_fittedvalues = ewm_model.mean()
         
         ewm_forecast = np.empty(forecast_len)
         ewm_forecast.fill(ewm_fittedvalues.iloc[-1])

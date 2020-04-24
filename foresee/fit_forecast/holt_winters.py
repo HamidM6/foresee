@@ -4,11 +4,12 @@ Holt-Winters
 
 from statsmodels.tsa.holtwinters import ExponentialSmoothing 
 
-def fit_holt_winters(ts, freq, forecast_len, model_params):
+def fit_holt_winters(df, freq, forecast_len, model_params):
     
     model = 'holt_winters'
     hw_params = model_params[model]
     
+    ts = df['y'].values
     
     try:                           
         

@@ -19,35 +19,10 @@ def read_json(file_path, file_name):
 
 def read_csv(file_path, file_name):
     
-    csv_file = os.path.join(file_path + '\\foresee\\params\\' + file_name)
+    csv_file = os.path.join(file_path + '\\foresee\\data\\' + file_name)
     
     return pd.read_csv(csv_file)
 
 
-def transform_dict_to_df(fit_result_list, model_list):
-    
-    df_list = list()
-    
-    for v in fit_result_list:
-        
-        df = pd.DataFrame()
-     
-        for m in model_list:
-
-            try:
-                fcst = np.concatenate([v[m+'_fitted_values'], v[m+'_forecast']])
-
-                df[m+'_forecast'] = fcst
-
-            except Exception as e:
-                df[m+'_forecast'] = 0
-                print(e)
-                
-        df['ts_id'] = v['ts_id']
-        df_list.append(df)
-        
-    result = pd.concat(df_list, axis=0, ignore_index=True) 
-    
-    return result
 
 

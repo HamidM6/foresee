@@ -1,5 +1,6 @@
 {
-"model_list":			["sarimax","holt_winters","prophet","fft","ewm_model"],
-"freq":					12,
-"forecast_len":			10
+"MODEL_LIST":			["sarimax","holt_winters","prophet","fft","ewm_model"],
+"FREQ":					12,
+"FORECAST_LEN":			10,
+"DATE_STAMP":			1
 }

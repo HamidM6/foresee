@@ -33,13 +33,12 @@ type of models:
 import os
 import pandas as pd
 import numpy as np
-import json
 import matplotlib.pyplot as plt
 
 import utils
 import compose
 
-root = 'C:\\Users\\abc_h\\Desktop\\github\\foresee'
+root = 'C:\\Users\\UF31246\\Desktop\\github\\foresee'
 # os.chdir(root)
 
 # default model params 
@@ -49,6 +48,7 @@ model_params = utils.read_json(root, 'model_params.json')
 # user can remove models from this list
 
 param_config = utils.read_json(root, 'param_config.json')
+
 
 """
 TODO: prompt user to accept default or set values
@@ -81,23 +81,13 @@ ts_result = compose.model_fit(ts_fact, model_params, param_config)
 '''
 
 
-def collect_result(raw_fact, model_list, gbkey=None):
+def collect_result(raw_fact, model_list, gbkey):
     
-    ts_list = list()
-    
-    if gbkey is None:
-         ts_list.append({'ts_id':1, 'ts':raw_fact['y'].values})
-    
-    else:
-        for k,v in raw_fact.groupby(gbkey):
-            ts_list.append({'ts_id':k, 'ts':v['y'].values})
-            
-        
     param_config['model_list'] = model_list
     
-    fit_result_list = compose.model_fit(ts_list, model_params, param_config)
+    fit_result_list = compose.model_fit(raw_fact, model_params, param_config, gbkey)
     
-    result = utils.transform_dict_to_df(fit_result_list, model_list)
+    result = compose.transform_dict_to_df(fit_result_list, model_list)
     
     return result
 

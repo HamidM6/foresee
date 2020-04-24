@@ -4,10 +4,12 @@ sarimax from statsmodels
 
 import statsmodels.api
 
-def fit_sarimax(ts, freq, forecast_len, model_params):
+def fit_sarimax(df, freq, forecast_len, model_params):
     
     model = 'sarimax'
     sarimax_params = model_params[model]
+    
+    ts = df['y'].values
     
     try:
         

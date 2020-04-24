@@ -24,11 +24,11 @@ class fitter:
          self.model = model
          
     
-    def fit(self, ts, freq, forecast_len, model_params):
+    def fit(self, df, freq, forecast_len, model_params):
         """
 
         :param data_param_dict: ts values and parameters
         """
         fit_model = self.FIT_MODELS[self.model]
         
-        return fit_model(ts, freq, forecast_len, model_params)
+        return fit_model(df, freq, forecast_len, model_params)
