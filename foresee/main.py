@@ -81,14 +81,23 @@ ts_result = compose.model_fit(ts_fact, model_params, param_config)
 '''
 
 
-def collect_result(raw_fact, model_list):
+def collect_result(raw_fact, model_list, gbkey=None):
     
-    ts_fact = {'ts_id':1, 'ts':raw_fact['y'].values}
+    ts_list = list()
+    
+    if gbkey is None:
+         ts_list.append({'ts_id':1, 'ts':raw_fact['y'].values})
+    
+    else:
+        for k,v in raw_fact.groupby(gbkey):
+            ts_list.append({'ts_id':k, 'ts':v['y'].values})
+            
+        
     param_config['model_list'] = model_list
     
-    fit_results = compose.model_fit(ts_fact, model_params, param_config)
+    fit_result_list = compose.model_fit(ts_list, model_params, param_config)
     
-    result = utils.transform_dict_to_df(fit_results, model_list)
+    result = utils.transform_dict_to_df(fit_result_list, model_list)
     
     return result
 

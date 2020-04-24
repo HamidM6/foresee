@@ -5,29 +5,34 @@ manage input and output of forecasting models
 
 import fitter
 
-def model_fit(ts_fact, model_params, param_config):
-    
-    ts = ts_fact['ts']
-    ts_id = ts_fact['ts_id']
+def model_fit(ts_list, model_params, param_config):
     
     freq = param_config['freq']
     forecast_len = param_config['forecast_len']
     
     model_list = param_config['model_list']
     
-    fit_result = dict()
+    fit_result_list = list()
     
-    for m in model_list:
+    for ts_dict in ts_list:
         
-        f = fitter.fitter(m)
+        fit_result = dict()
+        fit_result['ts_id'] = ts_dict['ts_id']
         
-        (
-                fit_result[m+'_modelobj'],
-                 fit_result[m+'_fitted_values'],
-                 fit_result[m+'_forecast'],
-                 fit_result[m+'_err']
-         ) = f.fit(ts, freq, forecast_len, model_params)
+        ts = ts_dict['ts']
+
+        for m in model_list:
+
+            f = fitter.fitter(m)
+
+            (
+            fit_result[m+'_modelobj'],
+             fit_result[m+'_fitted_values'],
+             fit_result[m+'_forecast'],
+             fit_result[m+'_err']
+             ) = f.fit(ts, freq, forecast_len, model_params)
+            
+        fit_result_list.append(fit_result)
         
-        
-    return {ts_id: fit_result}
+    return fit_result_list
 
