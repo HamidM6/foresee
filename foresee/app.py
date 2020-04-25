@@ -17,16 +17,92 @@ import dash_table
 
 import main
 
-# ts_results = main.collect_result()
-# sm_name = list(ts_results[1])
-sm_name = 'main is not running'
-
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+input_data_columns = list()
+
 app.layout = html.Div([
+    
+    ### prompt user to provide id column(s) name(s) ###
+    
+    dcc.Markdown('''
+    **If uploading more than one time series then you need to provide an id column name.**
+    '''),
+    dcc.Input(id="id-column", type="text", placeholder=""),
+    html.Br(),   
+    
+    ### prompt user to provide date_stamp column name ###
+    
+    dcc.Markdown('''
+    **provide date stamp column name if available.**
+    '''),
+    dcc.Input(id="ds-column", type="text", placeholder=""),
+    html.Br(),   
+    
+    ### prompt user to provide time series frequency ###
+    
+    dcc.Markdown('''
+    **provide time series frequency, default is 1.**
+    '''),
+    dcc.Input(id="ts-freq", type="number", placeholder=1),
+    html.Br(),   
+    
+    ### prompt user to provide forecast length ###
+    
+    dcc.Markdown('''
+    **provide forecast length, default is 10.**
+    '''),
+    dcc.Input(id="fcst-length", type="number", placeholder=10),
+    html.Br(),   
+    
+    ### display available output formats ###
+
+    dcc.Markdown('''
+    **Select result output format.**
+    '''),
+    dcc.RadioItems(
+        id='result-format',
+        options=[
+            {'label': 'Best Model', 'value': 'best_model'},
+            {'label': 'All Models', 'value': 'all_models'},
+            {'label': 'All & Best', 'value': 'all_best'}
+        ],
+        value='all_models',
+        labelStyle={'display': 'inline-block'}
+    ),
+    html.Br(),   
+    
+    ### prompt user to provide holdout length ###
+    
+    dcc.Markdown('''
+    **If comparing model results provide holdout length for out of sample
+    forecast accuracy estimation. default is 5.**
+    '''),
+    dcc.Input(id="holdout-length", type="number", placeholder=5),
+    html.Br(),   
+    
+    # display model list
+
+    html.H5('Select or Remove Models'),
+    
+    dcc.Checklist(
+        id='model-options',
+        options=[
+            {'label': 'FFT', 'value': 'fft'},
+            {'label': 'Holt Winters', 'value': 'holt_winters'},
+            {'label': 'Sarimax', 'value': 'sarimax'}
+        ],
+        value=['fft', 'holt_winters', 'sarimax'],
+        labelStyle={'display': 'inline-block'}
+    ),
+    
+    html.Hr(),
+    
+    ### upload file box ###
+    
     dcc.Upload(
         id='upload-data',
         children=html.Div([
@@ -43,31 +119,21 @@ app.layout = html.Div([
             'textAlign': 'center',
             'margin': '10px'
         },
-        # Allow multiple files to be uploaded
         multiple=True
     ),
     
-    html.Div(id='output-data-upload', style={'width': '50%'}),
+    ### display a sample of input data ###
     
-    html.H5('Select or Remove Models'),
+    html.Div(id='output-sample-data', style={'width': '50%'}),
+    html.Br(),   
     
-    dcc.Checklist(
-        id='model-options',
-        options=[
-            {'label': 'FFT', 'value': 'fft'},
-            {'label': 'Holt Winters', 'value': 'holt_winters'},
-            {'label': 'Sarimax', 'value': 'sarimax'}
-        ],
-        value=['fft', 'holt_winters', 'sarimax'],
-        labelStyle={'display': 'inline-block'}
+    ### display result ###
+    
+    html.Div(
+        id='output-result',
+        style={'width': '50%'}
     ),
-    
-    html.Div(id='model-list', style={'width': '50%'}),
     html.Hr(),
-    
-    html.Div(id='output-result', style={'width': '50%'}),
-    html.Hr(),
-    dcc.Markdown(children=sm_name),
     
 ])
 
@@ -129,7 +195,7 @@ def display_dataframe(df, name):
         ])
 
     
-@app.callback(Output('output-data-upload', 'children'),
+@app.callback(Output('output-sample-data', 'children'),
               [Input('upload-data', 'contents')],
               [State('upload-data', 'filename')])
 
@@ -139,33 +205,37 @@ def update_output(list_of_contents, list_of_names):
             parse_contents(c, n) for c, n in
             zip(list_of_contents, list_of_names)]
         return children
-
     
     
-@app.callback(Output('model-list', 'children'),
-              [Input('model-options', 'value')])
-
-def parse_selected_models(model_list):
-    
-    if model_list is not None:
-        return 'number of selected stat models: ' + str(len(model_list))
-    else:
-        return 'model_list is None'
-    
-
 @app.callback(Output('output-result', 'children'),
-              [Input('upload-data', 'contents'),
-              Input('model-options', 'value')],
+              [
+                  Input('id-column', 'value'),
+                  Input('ds-column', 'value'),
+                  Input('ts-freq', 'value'),
+                  Input('fcst-length', 'value'),
+                  Input('result-format', 'value'),
+                  Input('holdout-length', 'value'),
+                  Input('model-options', 'value'),
+                  Input('upload-data', 'contents'),
+              ],
               [State('upload-data', 'filename')])
 
-def parse_result(contents, model_list, filename):
+def parse_result(gbkey, ds_column, freq, fcst_length, run_type, holdout_length, model_list, contents, filename):
     if contents is not None:
         try:
             df_list = [read_contents(c, f) for c,f in zip(contents, filename)]
             raw_fact = df_list[0]
-            model_list = model_list
-
-            result = main.collect_result(raw_fact, model_list)
+            
+            result = main.collect_result(
+                                            raw_fact,
+                                             gbkey,
+                                             ds_column, 
+                                             freq, 
+                                             fcst_length, 
+                                             run_type, 
+                                             holdout_length, 
+                                             model_list
+                                        )
 
             return display_dataframe(result, 'forecast result')
         

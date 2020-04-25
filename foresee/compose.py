@@ -49,9 +49,6 @@ def _transform_dataframe_to_dict(raw_fact, gbkey):
     
     data_param_list = list()
     
-    if 'date_stamp' not in raw_fact.columns:
-        raw_fact['date_stamp'] = pd.date_range(end=datetime.datetime.now(), periods=len(raw_fact), freq='D')
-    
     if gbkey is None:
         
         data_param_list.append({'ts_id':1, 'df':raw_fact})
