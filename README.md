@@ -31,7 +31,7 @@ Contributions in any form are welcome, including:
 
 Discussions take place at foresee channel on slack
 
-https://join.slack.com/t/openstatworkspace/shared_invite/zt-e6cemrxs-dmHBIpHrZE_U0iciJBu6sA
+[join us on slack](https://join.slack.com/t/openstatworkspace/shared_invite/zt-e6cemrxs-dmHBIpHrZE_U0iciJBu6sA)
 
 Bug Reports
 ===========
