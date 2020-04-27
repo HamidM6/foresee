@@ -5,6 +5,10 @@ This package is under development and will not run properly yet but the goal is:
 
 Provided a time series and a few parameters, foresee can generate forecasts using several time series forecasting models in python and if requested, it can find the best model and results using out of sample forecast accuracy.
 
+Example
+=======
+simple example [https://github.com/HamidM6/foresee/tree/master/foresee/examples]
+
 
 Documentation
 =============
