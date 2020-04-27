@@ -10,7 +10,7 @@ def fit_fft(df, freq, forecast_len, model_params):
     model = 'fft'
     fft_params = model_params[model]
     
-    ts = df['y'].values
+    ts = df['y']
     
     ts_len = len(ts)
     

@@ -10,7 +10,7 @@ def fit_ewm(df, freq, forecast_len, model_params):
     model = 'ewm_model'
     ewm_params = model_params[model]
     
-    ts = df['y'].values
+    ts = df['y']
     
     span = 5
     

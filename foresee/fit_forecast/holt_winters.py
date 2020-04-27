@@ -9,7 +9,7 @@ def fit_holt_winters(df, freq, forecast_len, model_params):
     model = 'holt_winters'
     hw_params = model_params[model]
     
-    ts = df['y'].values
+    ts = df['y']
     
     try:                           
         

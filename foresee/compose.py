@@ -72,13 +72,13 @@ def transform_dict_to_df(fit_result_list, model_list):
         for m in model_list:
 
             try:
-                fcst = np.concatenate([v[m+'_fitted_values'], v[m+'_forecast']])
+                fcst = v[m+'_fitted_values'].append(v[m+'_forecast']).values
 
                 df[m+'_forecast'] = fcst
 
             except Exception as e:
                 df[m+'_forecast'] = 0
-                print(e)
+                print(str(e))
                 
         df['ts_id'] = v['ts_id']
         df_list.append(df)

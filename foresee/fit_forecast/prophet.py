@@ -43,7 +43,8 @@ def fit_prophet(df, freq, forecast_len, model_params):
     model = 'prophet'
     prophet_params = model_params[model]
     
-    df.reset_index(drop=True, inplace=True)
+    df = df[['date_stamp','y']].reset_index(drop=True)
+    df.columns = ['ds', 'y']
         
     try:
         
