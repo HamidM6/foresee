@@ -12,15 +12,11 @@ import matplotlib.pyplot as plt
 import utils
 import compose
 
-root = os.path.abspath(os.path.join('..\\..'))
-# os.chdir(root)
-
 # default model params
-model_params = utils.read_json(root, 'model_params.json')
+model_params = utils.read_json('model_params.json')
 
 # parameters configuration
-
-param_config = utils.read_json(root, 'param_config.json')
+param_config = utils.read_json('param_config.json')
 
 
 """

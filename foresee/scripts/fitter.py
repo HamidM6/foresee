@@ -3,11 +3,20 @@
 fitter class
 """
 
-from fit_forecast.holt_winters import fit_holt_winters
-from fit_forecast.sarimax import fit_sarimax
-from fit_forecast.ewm import fit_ewm
-from fit_forecast.prophet import fit_prophet
-from fit_forecast.fft import fit_fft
+import os
+import sys
+
+# import local modules
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path+'\\models')
+    
+from holt_winters import fit_holt_winters
+from sarimax import fit_sarimax
+from ewm import fit_ewm
+from prophet import fit_prophet
+from fft import fit_fft
 
 class fitter:
     

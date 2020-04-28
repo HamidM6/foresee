@@ -1,12 +1,13 @@
-
-#https://dash.plotly.com/dash-core-components/upload
-# import os
-# os.chdir('C:\\Users\\abc_h\\Desktop\\github\\foresee\\foresee')
+"""
+UI built using dash to perform basic tasks like uploading user data and setting proper parameters.
+"""
 
 
 import base64
 import datetime
 import io
+import os
+import sys
 import pandas as pd
 
 import dash
@@ -14,6 +15,12 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+
+# import local modules
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path+'\\scripts')
 
 import main
 
@@ -45,9 +52,9 @@ app.layout = html.Div([
     ### prompt user to provide time series frequency ###
     
     dcc.Markdown('''
-    **provide time series frequency, default is 1.**
+    **provide time series frequency, default is 12.**
     '''),
-    dcc.Input(id="ts-freq", type="number", placeholder=1),
+    dcc.Input(id="ts-freq", type="number", placeholder=12),
     html.Br(),   
     
     ### prompt user to provide forecast length ###
@@ -91,11 +98,13 @@ app.layout = html.Div([
     dcc.Checklist(
         id='model-options',
         options=[
+            {'label': 'EWM', 'value': 'ewm_model'},
             {'label': 'FFT', 'value': 'fft'},
             {'label': 'Holt Winters', 'value': 'holt_winters'},
+            {'label': 'Prophet', 'value': 'prophet'},
             {'label': 'Sarimax', 'value': 'sarimax'}
         ],
-        value=['fft', 'holt_winters', 'sarimax'],
+        value=['ewm_model', 'fft', 'holt_winters', 'prophet', 'sarimax'],
         labelStyle={'display': 'inline-block'}
     ),
     
@@ -161,13 +170,18 @@ def parse_contents(contents, filename):
     
     content = read_contents(contents, filename)
     
+    df_info = [col + ': ' + str(content[col].dtype) for col in content.columns]
+    df_info = '\n'.join([s for s in df_info])
+    
     if type(content) == str :
         return html.Div([err])
     
     else:
         return html.Div([
-            html.H5(filename),
+            #TODO: fix linebreak
+            dcc.Markdown(df_info),
 
+            html.H5(filename),
             dash_table.DataTable(
 
                 data=content.head(3).to_dict('records'),
@@ -226,7 +240,7 @@ def parse_result(gbkey, ds_column, freq, fcst_length, run_type, holdout_length, 
             df_list = [read_contents(c, f) for c,f in zip(contents, filename)]
             raw_fact = df_list[0]
             
-            result = main.collect_result(
+            result, fit_result_list = main.collect_result(
                                             raw_fact,
                                              gbkey,
                                              ds_column, 
