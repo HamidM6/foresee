@@ -8,6 +8,8 @@ Provided a time series and a few parameters, foresee can generate forecasts usin
 Example
 =======
 [basic example, no UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial.ipynb)
+
+
 [basic example, with UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/drop%20file%20to%20forecast.ipynb)
 
 
