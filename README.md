@@ -7,7 +7,7 @@ Provided a time series and a few parameters, foresee can generate forecasts usin
 
 Example
 =======
-[simple example](https://github.com/HamidM6/foresee/tree/master/foresee/examples)
+[basic example, no UI](https://github.com/HamidM6/foresee/tree/master/foresee/examples)
 
 
 Documentation
