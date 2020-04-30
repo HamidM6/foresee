@@ -90,6 +90,7 @@ def _pre_process_user_inputs(
         
     else:
         raw_fact.rename(columns={ds_column: 'date_stamp'}, inplace=True)
+        raw_fact['date_stamp'] = pd.to_datetime(raw_fact['date_stamp'])
         
     #TODO: if user chose to compare models, then create train-holdout sets
     #TODO: missing data interpolation, needs user input!

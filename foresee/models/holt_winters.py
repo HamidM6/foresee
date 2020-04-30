@@ -41,6 +41,7 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, epsilon)
     model = 'holt_winters'
     hw_params = model_params[model]
     complete_fact = data_dict['complete_fact']
+    hw_wfa = None
     
     
     hw_fitted_values, hw_forecast, err = holt_winters_fit_forecast(

@@ -241,15 +241,15 @@ def parse_result(gbkey, ds_column, freq, fcst_length, run_type, holdout_length, 
             raw_fact = df_list[0]
             
             result, fit_result_list = main.collect_result(
-                                            raw_fact,
-                                             gbkey,
-                                             ds_column, 
-                                             freq, 
-                                             fcst_length, 
-                                             run_type, 
-                                             holdout_length, 
-                                             model_list
-                                        )
+                                                                raw_fact,
+                                                                 gbkey,
+                                                                 ds_column, 
+                                                                 freq, 
+                                                                 fcst_length, 
+                                                                 run_type, 
+                                                                 holdout_length, 
+                                                                 model_list
+                                                        )
 
             return display_dataframe(result, 'forecast result')
         
