@@ -2,17 +2,14 @@
 Holt-Winters
 """
 
-from statsmodels.tsa.holtwinters import ExponentialSmoothing 
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-def fit_holt_winters(df, freq, forecast_len, model_params):
-    
-    model = 'holt_winters'
-    hw_params = model_params[model]
-    
-    ts = df['y']
+# local module
+import models_util
+
+def holt_winters_fit_forecast(ts, fcst_len, freq):
     
     try:                           
-        
         hw_model = ExponentialSmoothing(
                                             endog = ts,
                                             trend = 'add',
@@ -27,15 +24,54 @@ def fit_holt_winters(df, freq, forecast_len, model_params):
 
         hw_forecast = hw_model.predict(
                                             start = len(ts),
-                                            end =   len(ts) + forecast_len - 1
+                                            end =   len(ts) + fcst_len - 1
                                         )
         err = None
         
     except Exception as e:
-        
-        hw_model = None
         hw_fittedvalues = None
         hw_forecast = None
         err = str(e)
+    
+    
+    return hw_fittedvalues, hw_forecast, err
+
+def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, epsilon):
+    
+    model = 'holt_winters'
+    hw_params = model_params[model]
+    complete_fact = data_dict['complete_fact']
+    
+    
+    hw_fitted_values, hw_forecast, err = holt_winters_fit_forecast(
+                                                                       ts = complete_fact['y'],
+                                                                       fcst_len = fcst_len,
+                                                                       freq = freq,
+                                                                  )
+    
+    if run_type in ['best_model', 'all_best']:
         
-    return hw_model, hw_fittedvalues, hw_forecast, err
+        train_fact = data_dict['train_fact']
+        test_fact = data_dict['test_fact']    
+        fitted_values, forecast, err = holt_winters_fit_forecast(
+                                                                           ts = train_fact['y'],
+                                                                           fcst_len = len(test_fact),
+                                                                           freq = freq,
+                                                                 )
+        
+        if err is None:
+            hw_wfa = models_util.compute_wfa(
+                                    y = test_fact['y'].values,
+                                    yhat = forecast.values,
+                                    epsilon = epsilon,
+                                )
+            hw_fitted_values = fitted_values.append(forecast)
+            
+        else:
+            hw_wfa = -1
+            
+    return hw_fitted_values, hw_forecast, hw_wfa, err
+
+
+
+
