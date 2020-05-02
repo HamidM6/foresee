@@ -29,8 +29,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-input_data_columns = list()
-
+ 
 app.layout = html.Div([
     
     ### prompt user to provide id column(s) name(s) ###

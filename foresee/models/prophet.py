@@ -49,6 +49,8 @@ def prophet_fit_forecast(df, fcst_len, freq):
         prophet_freq = 'M'
     elif freq == 52:
         prophet_freq = 'W'
+    else:
+        prophet_freq = None
     
     try:
         
