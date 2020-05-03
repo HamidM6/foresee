@@ -36,6 +36,7 @@ run_type:
 
 def collect_result(
                         raw_fact,
+                        endog_colname,
                         gbkey,
                         ds_column, 
                         freq, 
@@ -47,15 +48,16 @@ def collect_result(
     
     
     pre_processed_dict, param_config = _pre_process_user_inputs(
-                                                            raw_fact,
-                                                            gbkey,
-                                                            ds_column, 
-                                                            freq, 
-                                                            fcst_length, 
-                                                            run_type, 
-                                                            holdout_length, 
-                                                            model_list
-                                                    )
+                                                                    raw_fact,
+                                                                    endog_colname,
+                                                                    gbkey,
+                                                                    ds_column, 
+                                                                    freq, 
+                                                                    fcst_length, 
+                                                                    run_type, 
+                                                                    holdout_length, 
+                                                                    model_list
+                                                            )
     
     result, fit_result_list = compose.compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type)
     
@@ -64,6 +66,7 @@ def collect_result(
 
 def _pre_process_user_inputs(
                                     raw_fact,
+                                    endog_colname,
                                     gbkey,
                                     ds_column, 
                                     freq, 
@@ -73,19 +76,32 @@ def _pre_process_user_inputs(
                                     model_list
                             ):
     """
-    add or rename date stamp column to input dataframe
+    add or rename date stamp column in input dataframe
     if comparing models results, separate input data to train-test dataframes
     """
     
     # next 4-lines can be done better
+    
     param_config['FREQ'] = freq
     param_config['FORECAST_LEN'] = fcst_length
     param_config['HOLDOUT_LEN'] = holdout_length
     param_config['MODEL_LIST'] = model_list
     
+    # replace endog column name with 'y'
     
+    if len(raw_fact.columns) == 1:
+        raw_fact.columns = ['y']
+    else:
+        if endog_colname in raw_fact_cols:
+            raw_fact.rename(columns={endog_colname: 'y'}, inplace=True)
+        else:
+            #TODO: display this error to user
+            raise ValueError('time series column name not found!!!')
+
     
-    if ds_column is None:
+    # add or rename date-time column
+    
+    if ds_column not in raw_fact.columns:
         raw_fact['date_stamp'] = pd.date_range(end=datetime.datetime.now(), periods=len(raw_fact), freq='D')
         
     else:
@@ -99,25 +115,27 @@ def _pre_process_user_inputs(
         
     if run_type in ['best_model', 'all_best']:
         
-        if gbkey is None:
-            train_fact = raw_fact.iloc[:-holdout_lenght]
-            test_fact = raw_fact.iloc[-holdout_lenght:]
-            pre_processed_dict[1] = {'complete_fact': raw_fact, 'train_fact': train_fact, 'test_fact': test_fact}
-            
-        else:
+        if gbkey in raw_fact.columns:
             for k,v in raw_fact.groupby(gbkey):
                 train_fact = v.iloc[:-holdout_length]
                 test_fact = v.iloc[-holdout_length:]
 
                 pre_processed_dict[k] = {'complete_fact': v, 'train_fact': train_fact, 'test_fact': test_fact}
+                
+        else:
+            train_fact = raw_fact.iloc[:-holdout_length]
+            test_fact = raw_fact.iloc[-holdout_length:]
+            pre_processed_dict[1] = {'complete_fact': raw_fact, 'train_fact': train_fact, 'test_fact': test_fact}
+            
             
     else:
-        if gbkey is None:
-            pre_processed_dict[1] = {'complete_fact': raw_fact}
-            
-        else:
+        if gbkey in raw_fact.columns:
             for k,v in raw_fact.groupby(gbkey):
                 pre_processed_dict[k] = {'complete_fact': v}
+                
+        else:
+            pre_processed_dict[1] = {'complete_fact': raw_fact}
+            
     
     return pre_processed_dict, param_config
   
