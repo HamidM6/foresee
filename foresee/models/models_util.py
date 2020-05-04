@@ -3,6 +3,7 @@ collection of utility functions used in models section
 """
 
 import numpy as np
+import pandas as pd
 
 def compute_wfa(y, yhat, epsilon):
     
@@ -30,6 +31,16 @@ def compute_abs_err(y, yhat):
         raise ValueError('error call from abs_err func: y or yhat is empty')
         
     return abs(y - yhat)
+
+
+# failed attempt to extend dataframe with date-time column, too many unknowns (TODO: try again)
+def make_future_dataframe():
+    
+    df = pd.DataFrame()
+    
+    dates = pd.date_range()
+    
+    return df
 
 
 

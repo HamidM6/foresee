@@ -3,6 +3,7 @@ Prophet: facebook's time series forecasting platform.
 """
 
 from fbprophet import Prophet
+import numpy as np
 import pandas as pd
 import os
 
@@ -84,6 +85,19 @@ def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, epsilon):
     prophet_params = model_params[model]
     
     complete_fact = data_dict['complete_fact']
+    
+    # dataframe to hold fitted values
+    fitted_fact = pd.DataFrame()
+    fitted_fact['y'] = complete_fact['y']
+    fitted_fact['data_split'] = complete_fact['data_split']
+    
+    # dataframe to hold forecast values
+    forecast_fact = pd.DataFrame()
+    forecast_fact['y'] = np.full(fcst_len, 0)
+    forecast_fact['data_split'] = np.full(fcst_len, 'Forecast')
+    
+    fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
+    
     prophet_wfa = None
     
     prophet_fitted_values, prophet_forecast, err = prophet_fit_forecast(
@@ -110,10 +124,18 @@ def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, epsilon):
                                     yhat = forecast.values,
                                     epsilon = epsilon,
                                 )
-            prophet_fitted_values = fitted_values.append(forecast)
+            prophet_fitted_values = fitted_values.append(forecast, ignore_index=True)
             
         else:
             prophet_wfa = -1
             
-    return prophet_fitted_values, prophet_forecast, prophet_wfa, err
+    if err is None:
+        fit_fcst_fact['prophet_forecast'] = prophet_fitted_values.append(prophet_forecast).values
+        fit_fcst_fact['prophet_wfa'] = prophet_wfa
+        
+    else:
+        fit_fcst_fact['prophet_forecast'] = 0
+        fit_fcst_fact['prophet_wfa'] = -1
+            
+    return fit_fcst_fact, prophet_wfa, err
 

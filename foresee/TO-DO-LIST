@@ -2,20 +2,21 @@ front-end
 
 read column names from input data and prompt user to select ts id columns and date-stamp column.
 
-create radio list for result type and get user input
-    if result type is best model, prompt user to set holdout length for out of sample testing
+display pandas df.info() as text (double checking input data, as read function) # done but needs line break
 
-get user input for time series frequency, forecast horizon, etc...
-
-display result as dash dataTable
-
-display pandas df.info() as text (double checking input data, as read function)
+add functionality to set model parameters or accept default parameters or tune parameters
 
 
 
 back-end
 
-if best model output type is desired, create training-holdout set and wfa and mse calculations.
-more models
+calculate out of sample mse and incorporate it in model comparison.
+
+add more models
+
+return input data and train/test/forecast split flag in result table
+
+prophet frequency set real number to string
  
+pre-processing!!!
 

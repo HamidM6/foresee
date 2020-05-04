@@ -35,6 +35,19 @@ def fit_ewm(data_dict, freq, fcst_len, model_params, run_type, epsilon):
     span = 5
     
     complete_fact = data_dict['complete_fact']
+    
+    # dataframe to hold fitted values
+    fitted_fact = pd.DataFrame()
+    fitted_fact['y'] = complete_fact['y']
+    fitted_fact['data_split'] = complete_fact['data_split']
+    
+    # dataframe to hold forecast values
+    forecast_fact = pd.DataFrame()
+    forecast_fact['y'] = np.full(fcst_len, 0)
+    forecast_fact['data_split'] = np.full(fcst_len, 'Forecast')
+    
+    fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
+    
     ewm_wfa = None
     
     ewm_fitted_values, ewm_forecast, err = ewm_fit_forecast(
@@ -62,16 +75,17 @@ def fit_ewm(data_dict, freq, fcst_len, model_params, run_type, epsilon):
                                     yhat = forecast.values,
                                     epsilon = epsilon,
                                 )
-            ewm_fitted_values = fitted_values.append(forecast)
+            ewm_fitted_values = fitted_values.append(forecast, ignore_index=True)
             
         else:
             ewm_wfa = -1
             
-    return ewm_fitted_values, ewm_forecast, ewm_wfa, err
-
-
-
-
-
-
-
+    if err is None:
+        fit_fcst_fact['ewm_model_forecast'] = ewm_fitted_values.append(ewm_forecast).values
+        fit_fcst_fact['ewm_model_wfa'] = ewm_wfa
+        
+    else:
+        fit_fcst_fact['ewm_model_forecast'] = 0
+        fit_fcst_fact['ewm_model_wfa'] = -1
+        
+    return fit_fcst_fact, ewm_wfa, err

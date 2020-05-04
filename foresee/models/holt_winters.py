@@ -2,6 +2,8 @@
 Holt-Winters
 """
 
+import numpy as np
+import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 # local module
@@ -41,6 +43,19 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, epsilon)
     model = 'holt_winters'
     hw_params = model_params[model]
     complete_fact = data_dict['complete_fact']
+    
+    # dataframe to hold fitted values
+    fitted_fact = pd.DataFrame()
+    fitted_fact['y'] = complete_fact['y']
+    fitted_fact['data_split'] = complete_fact['data_split']
+    
+    # dataframe to hold forecast values
+    forecast_fact = pd.DataFrame()
+    forecast_fact['y'] = np.full(fcst_len, 0)
+    forecast_fact['data_split'] = np.full(fcst_len, 'Forecast')
+    
+    fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
+    
     hw_wfa = None
     
     
@@ -66,12 +81,22 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, epsilon)
                                     yhat = forecast.values,
                                     epsilon = epsilon,
                                 )
-            hw_fitted_values = fitted_values.append(forecast)
+            hw_fitted_values = fitted_values.append(forecast, ignore_index=True)
             
         else:
             hw_wfa = -1
             
-    return hw_fitted_values, hw_forecast, hw_wfa, err
+    if err is None:
+        fit_fcst_fact['holt_winters_forecast'] = hw_fitted_values.append(hw_forecast).values
+        fit_fcst_fact['holt_winters_wfa'] = hw_wfa
+        
+    else:
+        fit_fcst_fact['holt_winters_forecast'] = 0
+        fit_fcst_fact['holt_winters_wfa'] = -1
+        
+
+            
+    return fit_fcst_fact, hw_wfa, err
 
 
 

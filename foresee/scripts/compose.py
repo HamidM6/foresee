@@ -31,8 +31,7 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type)
             f = fitter.fitter(m)
 
             (
-             fit_result[m+'_fitted_values'],
-             fit_result[m+'_forecast'],
+             fit_result[m+'_fit_fcst_df'],
              fit_result[m+'_wfa'],
              fit_result[m+'_err']
              ) = f.fit(data_dict, freq, forecast_len, model_params, run_type, epsilon)
@@ -44,12 +43,8 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type)
     return result, fit_result_list
 
 
-
 def combine_to_dataframe(fit_result_list, model_list, run_type):
     
-    #TODO: find the best model
-    #TODO: return result
-
     if run_type == 'best_model':
 
         fit_result_list = _find_best_model(fit_result_list, model_list)
@@ -59,21 +54,10 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
         for result_dict in fit_result_list:
 
             bm = result_dict['best_model']
-
-            df = pd.DataFrame()
-
-            try:
-                fcst = result_dict[bm+'_fitted_values'].append(result_dict[bm+'_forecast']).values
-                df[bm+'_forecast'] = fcst
-                df[bm+'_wfa'] = result_dict[bm+'_wfa']
-
-            except Exception as e:
-                df[bm+'_forecast'] = 0
-                df[bm+'_wfa'] = -1
-                print(str(e))
-
+            df = result_dict[bm+'_fit_fcst_df']
+            
+            df['best_model'] = bm
             df['ts_id'] = result_dict['ts_id']
-            df['best_model'] = result_dict['best_model']
             df_list.append(df)
 
         result = pd.concat(df_list, axis=0, ignore_index=True)
@@ -85,22 +69,16 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
         df_list = list()
 
         for result_dict in fit_result_list:
-            df = pd.DataFrame()
+            bm = result_dict['best_model']
+            df = result_dict[bm+'_fit_fcst_df']
             
             for m in model_list:
-
-                try:
-                    fcst = result_dict[m+'_fitted_values'].append(result_dict[m+'_forecast']).values
-                    df[m+'_forecast'] = fcst
-                    df[m+'_wfa'] = result_dict[m+'_wfa']
-
-                except Exception as e:
-                    df[m+'_forecast'] = 0
-                    df[m+'_wfa'] = -1
-                    print(str(e))
+                mdf = result_dict[m+'_fit_fcst_df']
+                df[m+'_forecast'] = mdf[m+'_forecast'].values
+                df[m+'_wfa'] = mdf[m+'_wfa'].values
 
             df['ts_id'] = result_dict['ts_id']
-            df['best_model'] = result_dict['best_model']
+            df['best_model'] = bm
             df_list.append(df)
 
         result = pd.concat(df_list, axis=0, ignore_index=True)
@@ -111,17 +89,12 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
         
         for result_dict in fit_result_list:
             df = pd.DataFrame()
-
+            
             for m in model_list:
-
-                try:
-                    fcst = result_dict[m+'_fitted_values'].append(result_dict[m+'_forecast']).values
-                    df[m+'_forecast'] = fcst
-
-                except Exception as e:
-                    df[m+'_forecast'] = 0
-                    print(str(e))
-
+                mdf = result_dict[m+'_fit_fcst_df']
+                df[m+'_forecast'] = mdf[m+'_forecast'].values
+                
+            df['data_split'] = mdf['data_split'].values
             df['ts_id'] = result_dict['ts_id']
             df_list.append(df)
         

@@ -92,7 +92,7 @@ def _pre_process_user_inputs(
     if len(raw_fact.columns) == 1:
         raw_fact.columns = ['y']
     else:
-        if endog_colname in raw_fact_cols:
+        if endog_colname in raw_fact.columns:
             raw_fact.rename(columns={endog_colname: 'y'}, inplace=True)
         else:
             #TODO: display this error to user
@@ -119,21 +119,26 @@ def _pre_process_user_inputs(
             for k,v in raw_fact.groupby(gbkey):
                 train_fact = v.iloc[:-holdout_length]
                 test_fact = v.iloc[-holdout_length:]
+                v['data_split'] = np.concatenate([np.full(len(train_fact), 'Train'), np.full(len(test_fact), 'Test')])
 
                 pre_processed_dict[k] = {'complete_fact': v, 'train_fact': train_fact, 'test_fact': test_fact}
                 
         else:
             train_fact = raw_fact.iloc[:-holdout_length]
             test_fact = raw_fact.iloc[-holdout_length:]
+            raw_fact['data_split'] = np.concatenate([np.full(len(train_fact), 'Train'), np.full(len(test_fact), 'Test')])
+            
             pre_processed_dict[1] = {'complete_fact': raw_fact, 'train_fact': train_fact, 'test_fact': test_fact}
             
             
     else:
         if gbkey in raw_fact.columns:
             for k,v in raw_fact.groupby(gbkey):
+                v['data_split'] = 'Train'
                 pre_processed_dict[k] = {'complete_fact': v}
                 
         else:
+            raw_fact['data_split'] = 'Train'
             pre_processed_dict[1] = {'complete_fact': raw_fact}
             
     
