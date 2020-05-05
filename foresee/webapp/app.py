@@ -72,6 +72,15 @@ app.layout = html.Div([
     dcc.Input(id="fcst-length", type="number", placeholder='forecast horizon', value=10),
     html.Br(),   
     
+    ### prompt user to provide holdout length ###
+    
+    dcc.Markdown('''
+    **If comparing model results, provide holdout length for out of sample
+    forecast accuracy estimation. Default is 5.**
+    '''),
+    dcc.Input(id="holdout-length", type="number", placeholder='out of sample holdout len', value=5),
+    html.Br(),   
+    
     ### display available output formats ###
 
     dcc.Markdown('''
@@ -87,16 +96,23 @@ app.layout = html.Div([
         value='all_models',
         labelStyle={'display': 'inline-block'}
     ),
-    html.Br(),   
+    html.Br(),
     
-    ### prompt user to provide holdout length ###
-    
+    ### display fit-forecast processing method (parallel/sequential) ###
+
     dcc.Markdown('''
-    **If comparing model results, provide holdout length for out of sample
-    forecast accuracy estimation. Default is 5.**
+    **Select fit-forecast processing method. Parallel execution with "dask" library.**
     '''),
-    dcc.Input(id="holdout-length", type="number", placeholder='out of sample holdout len', value=5),
-    html.Br(),   
+    dcc.RadioItems(
+        id='fit-execution-method',
+        options=[
+            {'label': 'Parallel', 'value': 'parallel'},
+            {'label': 'Sequential', 'value': 'non_parallel'}
+        ],
+        value='non_parallel',
+        labelStyle={'display': 'inline-block'}
+    ),
+    html.Br(),
     
     # display model list
 
@@ -243,6 +259,7 @@ def display_dataframe(df, name):
                 style_table={'height': '300px', 'overflowY': 'auto'},              
                 export_columns = 'all',
                 export_format = 'csv',
+#                 filter_action='native',
             ),
             html.Hr(),
         ])
@@ -280,10 +297,23 @@ def update_output(content_list, ds_colname, filename_list):
                   Input('holdout-length', 'value'),
                   Input('model-options', 'value'),
                   Input('upload-data', 'contents'),
+                  Input('fit-execution-method', 'value')
               ],
               [State('upload-data', 'filename')])
 
-def parse_result(endog_colname, gbkey, ds_colname, freq, fcst_length, run_type, holdout_length, model_list, content_list, filename_list):
+def parse_result(
+                    endog_colname,
+                    gbkey,
+                    ds_colname,
+                    freq,
+                    fcst_length,
+                    run_type,
+                    holdout_length,
+                    model_list,
+                    content_list,
+                    processing_method,
+                    filename_list,
+                ):
     if content_list is not None:
         try:
             raw_fact = read_contents(content_list[0], ds_colname, filename_list[0])
@@ -311,8 +341,9 @@ def parse_result(endog_colname, gbkey, ds_colname, freq, fcst_length, run_type, 
                                                                  freq, 
                                                                  fcst_length, 
                                                                  run_type, 
-                                                                 holdout_length, 
-                                                                 model_list
+                                                                 holdout_length,
+                                                                 model_list,
+                                                                 processing_method,
                                                         )
 
             return display_dataframe(result, 'forecast result')

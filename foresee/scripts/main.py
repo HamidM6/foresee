@@ -42,8 +42,9 @@ def collect_result(
                         freq, 
                         fcst_length, 
                         run_type, 
-                        holdout_length, 
-                        model_list
+                        holdout_length,
+                        model_list,
+                        processing_method,
                     ):
     
     
@@ -55,11 +56,11 @@ def collect_result(
                                                                     freq, 
                                                                     fcst_length, 
                                                                     run_type, 
-                                                                    holdout_length, 
-                                                                    model_list
+                                                                    holdout_length,
+                                                                    model_list,
                                                             )
     
-    result, fit_result_list = compose.compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type)
+    result, fit_result_list = compose.compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method)
     
     return result, fit_result_list
 

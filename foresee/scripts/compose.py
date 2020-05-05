@@ -7,36 +7,62 @@ import pandas as pd
 import numpy as np
 import datetime
 import fitter
+import dask
+dask.config.set(scheduler='processes')
 
 
+def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, epsilon):
+    
+    fit_result = dict()
+    fit_result['ts_id'] = dict_key
+    
+    for m in model_list:
 
-def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type):
+        f = fitter.fitter(m)
+
+        (
+         fit_result[m+'_fit_fcst_df'],
+         fit_result[m+'_wfa'],
+         fit_result[m+'_err']
+         ) = f.fit(dict_values, freq, forecast_len, model_params, run_type, epsilon)
+    
+    return fit_result
+
+
+# non-parallel fit function
+def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method):
     
     freq = param_config['FREQ']
     forecast_len = param_config['FORECAST_LEN']
     model_list = param_config['MODEL_LIST']
     epsilon = param_config['EPSILON']
     
-    # list of dictionaries
-    fit_result_list = list()
+    # non-parallel fit
     
-    for k, data_dict  in pre_processed_dict.items():
+    if processing_method == 'parallel':
+        task_list = list()
         
-        fit_result = dict()
-        
-        fit_result['ts_id'] = k
-        
-        for m in model_list:
+        for dict_key, dict_values in pre_processed_dict.items():
+            fit_task = dask.delayed(generate_fit_forecast)(
+                                                               dict_key,
+                                                               dict_values,
+                                                               model_list,
+                                                               freq,
+                                                               forecast_len,
+                                                               model_params,
+                                                               run_type,
+                                                               epsilon
+                                                          )
+            task_list.append(fit_task)
 
-            f = fitter.fitter(m)
+        fit_result_list = dask.compute(task_list)[0]
+        
+    else:
+        fit_result_list = list()
 
-            (
-             fit_result[m+'_fit_fcst_df'],
-             fit_result[m+'_wfa'],
-             fit_result[m+'_err']
-             ) = f.fit(data_dict, freq, forecast_len, model_params, run_type, epsilon)
-            
-        fit_result_list.append(fit_result)
+        for dict_key, dict_values  in pre_processed_dict.items():
+            fit_result = generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, epsilon)
+            fit_result_list.append(fit_result)
         
     result = combine_to_dataframe(fit_result_list, model_list, run_type)
         
