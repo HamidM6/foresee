@@ -7,7 +7,7 @@ import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 # local module
-import models_util
+from foresee.models import models_util
 
 def holt_winters_fit_forecast(ts, fcst_len, freq):
     

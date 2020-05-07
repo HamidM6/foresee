@@ -7,7 +7,7 @@ import pandas as pd
 import statsmodels.api
 
 # local module
-import models_util
+from foresee.models import models_util
 
 def sarimax_fit_forecast(ts, fcst_len):
     

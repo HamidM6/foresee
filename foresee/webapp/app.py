@@ -18,11 +18,11 @@ import dash_table
 
 # import local modules
 
-module_path = os.path.abspath(os.path.join('..'))
-if module_path not in sys.path:
-    sys.path.append(module_path+'\\scripts')
+#module_path = os.path.abspath(os.path.join('..'))
+#if module_path not in sys.path:
+#    sys.path.append(module_path+'\\scripts')
 
-import main
+from foresee.scripts import main
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']

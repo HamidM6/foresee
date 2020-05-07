@@ -6,10 +6,10 @@ manage input and output of forecasting models
 import pandas as pd
 import numpy as np
 import datetime
-import fitter
 import dask
 dask.config.set(scheduler='processes')
 
+from foresee.scripts import fitter
 
 def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, epsilon):
     

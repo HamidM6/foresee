@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # local module
-import models_util
+from foresee.models import models_util
 
 def ewm_fit_forecast(ts, fcst_len, span):
     

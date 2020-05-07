@@ -8,7 +8,7 @@ import pandas as pd
 import os
 
 # local module
-import models_util
+from foresee.models import models_util
 
 class suppress_stdout_stderr(object):
     '''

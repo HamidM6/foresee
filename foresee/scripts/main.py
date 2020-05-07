@@ -7,10 +7,9 @@ import os
 import pandas as pd
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
 
-import utils
-import compose
+from foresee.scripts import utils
+from foresee.scripts import compose
 
 # default model params
 model_params = utils.read_json('model_params.json')

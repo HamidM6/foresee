@@ -8,15 +8,15 @@ import sys
 
 # import local modules
 
-module_path = os.path.abspath(os.path.join('..'))
-if module_path not in sys.path:
-    sys.path.append(module_path+'\\models')
+#module_path = os.path.abspath(os.path.join('..'))
+#if module_path not in sys.path:
+#    sys.path.append(module_path+'\\models')
     
-from holt_winters import fit_holt_winters
-from sarimax import fit_sarimax
-from ewm import fit_ewm
-from prophet import fit_prophet
-from fft import fit_fft
+from foresee.models.holt_winters import fit_holt_winters
+from foresee.models.sarimax import fit_sarimax
+from foresee.models.ewm import fit_ewm
+from foresee.models.prophet import fit_prophet
+from foresee.models.fft import fit_fft
 
 class fitter:
     
