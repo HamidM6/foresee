@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 					name='foresee',
-					version='0.1.0a5',
+					version='0.1.0a6',
 					author='Hamid Mohammadi',
 					author_email='hmohammadi6545@gmail.com',
 					description='Generate forecasts using several time series forecasting models in python.',
@@ -14,6 +14,7 @@ setuptools.setup(
 					url='https://github.com/HamidM6/foresee',
 					packages=setuptools.find_packages(),
 					classifiers=[
+						'Development Status :: 3 - Alpha',
 						"Programming Language :: Python :: 3",
 						"License :: OSI Approved :: MIT License",
 						"Operating System :: OS Independent",
