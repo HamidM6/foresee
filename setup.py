@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 					name='foresee',
-					version='0.1.0a6',
+					version='0.1.0a7',
 					author='Hamid Mohammadi',
 					author_email='hmohammadi6545@gmail.com',
 					description='Generate forecasts using several time series forecasting models in python.',
