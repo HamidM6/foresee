@@ -11,7 +11,7 @@ dask.config.set(scheduler='processes')
 
 from foresee.scripts import fitter
 
-def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, epsilon):
+def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, tune, epsilon):
     
     fit_result = dict()
     fit_result['ts_id'] = dict_key
@@ -22,15 +22,14 @@ def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len,
 
         (
          fit_result[m+'_fit_fcst_df'],
-         fit_result[m+'_wfa'],
-         fit_result[m+'_err']
-         ) = f.fit(dict_values, freq, forecast_len, model_params, run_type, epsilon)
+         fit_result[m+'_args']
+         ) = f.fit(dict_values, freq, forecast_len, model_params, run_type, tune, epsilon)
     
     return fit_result
 
 
 # non-parallel fit function
-def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method):
+def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method, tune):
     
     freq = param_config['FREQ']
     forecast_len = param_config['FORECAST_LEN']
@@ -51,6 +50,7 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
                                                                forecast_len,
                                                                model_params,
                                                                run_type,
+                                                               tune,
                                                                epsilon
                                                           )
             task_list.append(fit_task)
@@ -61,7 +61,17 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
         fit_result_list = list()
 
         for dict_key, dict_values  in pre_processed_dict.items():
-            fit_result = generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, epsilon)
+            fit_result = generate_fit_forecast(
+                                                    dict_key,
+                                                    dict_values,
+                                                    model_list,
+                                                    freq,
+                                                    forecast_len,
+                                                    model_params,
+                                                    run_type,
+                                                    tune,
+                                                    epsilon
+                                            )
             fit_result_list.append(fit_result)
         
     result = combine_to_dataframe(fit_result_list, model_list, run_type)
@@ -135,7 +145,7 @@ def _find_best_model(fit_result_list, model_list):
         model_wfa_dict = dict()
         
         for m in model_list:
-            model_wfa_dict[m] = result_dict[m+'_wfa']
+            model_wfa_dict[m] = result_dict[m+'_args']['wfa']
             
         result_dict['best_model'] = [k for k,v in model_wfa_dict.items() if v == max(model_wfa_dict.values())][0]
     

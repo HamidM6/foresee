@@ -18,9 +18,6 @@ model_params = utils.read_json('model_params.json')
 param_config = utils.read_json('param_config.json')
 
 
-"""
-TODO: prompt user to accept default or set values
-"""
 
 """
 TODO: provide function documentation
@@ -44,6 +41,7 @@ def collect_result(
                         holdout_length,
                         model_list,
                         processing_method,
+                        tune,
                     ):
     
     
@@ -59,7 +57,15 @@ def collect_result(
                                                                     model_list,
                                                             )
     
-    result, fit_result_list = compose.compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method)
+    result, fit_result_list = compose.compose_fit(
+                                                        pre_processed_dict,
+                                                        model_params,
+                                                        param_config,
+                                                        gbkey,
+                                                        run_type,
+                                                        processing_method,
+                                                        tune,
+                                                )
     
     return result, fit_result_list
 

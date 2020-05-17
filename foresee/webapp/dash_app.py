@@ -2,6 +2,7 @@
 UI built using dash to perform basic tasks like uploading user data and setting proper parameters.
 """
 
+from foresee.scripts import main
 
 import base64
 import datetime
@@ -17,7 +18,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-from foresee.scripts import main
 
 server = flask.Flask(__name__)
 
@@ -131,8 +131,24 @@ app.layout = html.Div([
 		value=['ewm_model', 'fft', 'holt_winters', 'prophet', 'sarimax'],
 		labelStyle={'display': 'inline-block'}
 	),
+	html.Br(),
 
+	### display model parameter tuning option ###
+
+	dcc.Markdown('''
+	**If tune is selected, model parameters will be optimized using holdout forecast accuracy in "Best Model" and "All & Best" methods.**
+	'''),
+	dcc.RadioItems(
+		id='tune-params',
+		options=[
+			{'label': 'Tuned Parameters', 'value': 'tune'},
+			{'label': 'Default Parameters', 'value': 'default'}
+		],
+		value='default',
+		labelStyle={'display': 'inline-block'}
+	),
 	html.Hr(),
+
 
 	### upload file box ###
 
@@ -295,60 +311,66 @@ def update_output(content_list, ds_colname, filename_list):
 				  Input('holdout-length', 'value'),
 				  Input('model-options', 'value'),
 				  Input('upload-data', 'contents'),
-				  Input('fit-execution-method', 'value')
+				  Input('fit-execution-method', 'value'),
+				  Input('tune-params', 'value'),
 			  ],
 			  [State('upload-data', 'filename')])
 
 def parse_result(
-					endog_colname,
-					gbkey,
-					ds_colname,
-					freq,
-					fcst_length,
-					run_type,
-					holdout_length,
-					model_list,
-					content_list,
-					processing_method,
-					filename_list,
-				):
-	if content_list is not None:
-		try:
-			raw_fact = read_contents(content_list[0], ds_colname, filename_list[0])
+            					endog_colname,
+            					gbkey,
+            					ds_colname,
+            					freq,
+            					fcst_length,
+            					run_type,
+            					holdout_length,
+            					model_list,
+            					content_list,
+            					processing_method,
+                       param_type,
+            					filename_list,
+        				):
+    
+    if content_list is not None:
+        try:
+            
+            raw_fact = read_contents(content_list[0], ds_colname, filename_list[0])
+            raw_fact_cols = raw_fact.columns
+            
+            if gbkey not in raw_fact_cols:
+                gbkey = 'id'
+            if ds_colname not in raw_fact_cols:
+                ds_colname = 'date_stamp'
+            if freq == '':
+                freq = 1
+            if fcst_length == '':
+                fcst_length = 10
+            if holdout_length == '':
+                holdout_length = 5
+            if param_type == 'tune':
+                tune = True
+            else:
+                tune = False
+                
+            result, fit_result_list = main.collect_result(
+                                                                raw_fact,
+                                                                endog_colname,
+                                                                gbkey,
+                                                                ds_colname,
+                                                                freq,
+                                                                fcst_length,
+                                                                run_type,
+                                                                holdout_length,
+                                                                model_list,
+                                                                processing_method,
+                                                                tune,
+                                                        )
+            
+            return display_dataframe(result, 'forecast result')
+        
+        except Exception as e:
+            return display_dataframe(str(e), None)
 
-			raw_fact_cols = raw_fact.columns
-
-			#TODO: add flag for endog column
-
-			if gbkey not in raw_fact_cols:
-				gbkey = 'id'
-			if ds_colname not in raw_fact_cols:
-				ds_colname = 'date_stamp'
-			if freq == '':
-				freq = 1
-			if fcst_length == '':
-				fcst_length = 10
-			if holdout_length == '':
-				holdout_length = 5
-
-			result, fit_result_list = main.collect_result(
-																 raw_fact,
-																 endog_colname,
-																 gbkey,
-																 ds_colname, 
-																 freq, 
-																 fcst_length, 
-																 run_type, 
-																 holdout_length,
-																 model_list,
-																 processing_method,
-														)
-
-			return display_dataframe(result, 'forecast result')
-
-		except Exception as e:
-			return display_dataframe(str(e), None)
-
-# if __name__ == '__main__':
-	# app.run_server(debug=True)
+#if __name__ == '__main__':
+#    app.run_server(debug=True)
 	

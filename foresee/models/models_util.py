@@ -9,6 +9,8 @@ def compute_wfa(y, yhat, epsilon):
     
     """
     weighted forecast accuracy
+    
+    TODO: update error checking 
     """
     
     try:
@@ -16,10 +18,13 @@ def compute_wfa(y, yhat, epsilon):
         wfa = max(0, 1-(2*sum(abs_err))/(sum(y) + sum(yhat) + epsilon))
         
     except Exception as e:
-        raise ValueError('error call from wfa func: ' + str(e))
-    
+        wfa = 0
+        err = str(e)
+        print(err)
+        
     return wfa
-
+    
+    
 def compute_abs_err(y, yhat):
     
     #TODO: add more checks, e.g. data-type, same length, ...

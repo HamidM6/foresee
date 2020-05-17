@@ -7,6 +7,7 @@ import pandas as pd
 
 # local module
 from foresee.models import models_util
+from foresee.models import param_optimizer
 
 
 def reconstruct_signal(
@@ -71,7 +72,7 @@ def fft_fit_forecast(ts, fcst_len, n_harmonics):
                                                  linear_trend = linear_trend
                                               )
         
-        fft_fit_forecast = pd.Series(fft_fit_forecast).clip(lower=0)
+        fft_fit_forecast = pd.Series(fft_fit_forecast)
         
         
         fft_fittedvalues = fft_fit_forecast[:-(fcst_len)]
@@ -89,11 +90,9 @@ def fft_fit_forecast(ts, fcst_len, n_harmonics):
     return fft_fittedvalues, fft_forecast, err
 
 
-def fit_fft(data_dict, freq, fcst_len, model_params, run_type, epsilon):
+def fit_fft(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
     
     model = 'fft'
-    fft_params = model_params[model]
-    n_harmonics = 5
     
     complete_fact = data_dict['complete_fact']
     
@@ -109,44 +108,73 @@ def fit_fft(data_dict, freq, fcst_len, model_params, run_type, epsilon):
     
     fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
     
-    fft_wfa = None
+    args = dict()
     
-    fft_fitted_values, fft_forecast, err = fft_fit_forecast(
-                                                        ts = complete_fact['y'],
-                                                        fcst_len = fcst_len,
-                                                        n_harmonics = n_harmonics,
-
-                                                    )
-    
-    
+    # no model competition
+    if run_type in ['all_models']:
+        
+        n_harmonics = 5
+        fft_fitted_values, fft_forecast, err = fft_fit_forecast(
+                                                                    ts = complete_fact['y'],
+                                                                    fcst_len = fcst_len,
+                                                                    n_harmonics = n_harmonics,
+                                                            )
+        
+        if err is None:
+            fit_fcst_fact['fft_forecast'] = fft_fitted_values.append(fft_forecast).values
+            
+        else:
+            fit_fcst_fact['fft_forecast'] = 0
+            
+        args['err'] = err
+        args['n_harmonics'] = n_harmonics
+            
+    # with model completition            
     if run_type in ['best_model', 'all_best']:
         
         train_fact = data_dict['train_fact']
         test_fact = data_dict['test_fact']
         
-        fitted_values, forecast, err = fft_fit_forecast(
-                                                            ts = train_fact['y'],
-                                                            fcst_len = len(test_fact),
-                                                            n_harmonics = n_harmonics,
-                                                        )
+        if tune:
+            # TODO: add logic when optimization fails
+            model_param_space = model_params[model]['n_harmonics']
+            n_harmonics, trials = param_optimizer.tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilon)
+            args['trials'] = trials
+            
+        else:
+            n_harmonics = 5
+            
+        training_fitted_values, training_forecast, training_err = fft_fit_forecast(
+                                                                                    ts = train_fact['y'],
+                                                                                    fcst_len = len(test_fact) ,
+                                                                                    n_harmonics = n_harmonics
+                                                                                )
         
-        if err is None:
+        complete_fitted_values, complete_forecast, complete_err = fft_fit_forecast(
+                                                                                    ts = complete_fact['y'],
+                                                                                    fcst_len = fcst_len,
+                                                                                    n_harmonics = n_harmonics
+                                                                                )
+        
+        if training_err is None and complete_err is None:
             fft_wfa = models_util.compute_wfa(
-                                                    y = test_fact['y'].values,
-                                                    yhat = forecast.values,
-                                                    epsilon = epsilon,
-                                            )
-            fft_fitted_values = fitted_values.append(forecast, ignore_index=True)
+                                    y = test_fact['y'].values,
+                                    yhat = training_forecast.values,
+                                    epsilon = epsilon,
+                                )
+            fft_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
+            
+            fit_fcst_fact['fft_forecast'] = fft_fit_fcst.values
+            fit_fcst_fact['fft_wfa'] = fft_wfa
             
         else:
             fft_wfa = -1
+            fit_fcst_fact['fft_forecast'] = 0
+            fit_fcst_fact['fft_wfa'] = -1
             
-    if err is None:
-        fit_fcst_fact['fft_forecast'] = fft_fitted_values.append(fft_forecast).values
-        fit_fcst_fact['fft_wfa'] = fft_wfa
+        args['err'] = (training_err, complete_err)
+        args['wfa'] = fft_wfa
+        args['n_harmonics'] = n_harmonics
         
-    else:
-        fit_fcst_fact['fft_forecast'] = 0
-        fit_fcst_fact['fft_wfa'] = -1
-            
-    return fit_fcst_fact, fft_wfa, err
+        
+    return fit_fcst_fact, args

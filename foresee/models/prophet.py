@@ -79,7 +79,7 @@ def prophet_fit_forecast(df, fcst_len, freq):
     return prophet_fittedvalues, prophet_forecast, err
 
 
-def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, epsilon):
+def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
     
     model = 'ewm_model'
     prophet_params = model_params[model]
@@ -98,44 +98,61 @@ def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, epsilon):
     
     fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
     
-    prophet_wfa = None
+    args = dict()
     
-    prophet_fitted_values, prophet_forecast, err = prophet_fit_forecast(
-                                                                            df = complete_fact,
-                                                                            fcst_len = fcst_len,
-                                                                            freq = freq,
-                                                                        )
+    if run_type in ['all_models']:
     
-    
+        prophet_fitted_values, prophet_forecast, err = prophet_fit_forecast(
+                                                                                df = complete_fact,
+                                                                                fcst_len = fcst_len,
+                                                                                freq = freq,
+                                                                            )
+        if err is None:
+            fit_fcst_fact['prophet_forecast'] = prophet_fitted_values.append(prophet_forecast).values
+            
+        else:
+            fit_fcst_fact['prophet_forecast'] = 0
+            
+        args['err'] = err
+            
+            
     if run_type in ['best_model', 'all_best']:
         
         train_fact = data_dict['train_fact']
         test_fact = data_dict['test_fact']
         
-        fitted_values, forecast, err = prophet_fit_forecast(
-                                                                df = train_fact,
-                                                                fcst_len = len(test_fact) ,
-                                                                freq = freq
-                                                            )
+        training_fitted_values, training_forecast, training_err = prophet_fit_forecast(
+                                                                                            df = train_fact,
+                                                                                            fcst_len = len(test_fact),
+                                                                                            freq = freq
+                                                                                    )
         
-        if err is None:
+        complete_fitted_values, complete_forecast, complete_err = prophet_fit_forecast(
+                                                                                            df = train_fact,
+                                                                                            fcst_len = fcst_len,
+                                                                                            freq = freq
+                                                                                    )
+        
+        if training_err is None and complete_err is None:
             prophet_wfa = models_util.compute_wfa(
                                     y = test_fact['y'].values,
-                                    yhat = forecast.values,
+                                    yhat = training_forecast.values,
                                     epsilon = epsilon,
                                 )
-            prophet_fitted_values = fitted_values.append(forecast, ignore_index=True)
+            
+            prophet_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
+            
+            fit_fcst_fact['prophet_forecast'] = prophet_fit_fcst.values
+            fit_fcst_fact['prophet_wfa'] = prophet_wfa
             
         else:
             prophet_wfa = -1
+            fit_fcst_fact['prophet_forecast'] = 0
+            fit_fcst_fact['prophet_wfa'] = prophet_wfa
             
-    if err is None:
-        fit_fcst_fact['prophet_forecast'] = prophet_fitted_values.append(prophet_forecast).values
-        fit_fcst_fact['prophet_wfa'] = prophet_wfa
-        
-    else:
-        fit_fcst_fact['prophet_forecast'] = 0
-        fit_fcst_fact['prophet_wfa'] = -1
+        args['err'] = (training_err, complete_err)
+        args['wfa'] = prophet_wfa
             
-    return fit_fcst_fact, prophet_wfa, err
+            
+    return fit_fcst_fact, args
 
