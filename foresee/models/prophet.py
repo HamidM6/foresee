@@ -2,6 +2,9 @@
 Prophet: facebook's time series forecasting platform.
 """
 
+import warnings
+warnings.filterwarnings('ignore')
+
 from fbprophet import Prophet
 import numpy as np
 import pandas as pd
@@ -57,8 +60,8 @@ def prophet_fit_forecast(df, fcst_len, freq):
         
         prophet_model = Prophet()
         
-        #with suppress_stdout_stderr():
-        prophet_model.fit(df)
+        with suppress_stdout_stderr():
+            prophet_model.fit(df)
             
         future = prophet_model.make_future_dataframe(periods=fcst_len, freq=prophet_freq, include_history=True)
         

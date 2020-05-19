@@ -23,7 +23,7 @@ def sarimax_fit_forecast(ts, fcst_len, freq, params):
                                                                         endog = ts,
                                                                         enforce_stationarity = False,
                                                                         enforce_invertibility = False,
-                                                                   ).fit(disp=False)
+                                                                   ).fit(disp=0)
         else:
             order = (params['p'], params['d'], params['q'])
             seasonal_order = (params['cp'], params['cd'], params['cq'], freq)
@@ -34,7 +34,7 @@ def sarimax_fit_forecast(ts, fcst_len, freq, params):
                                                                         seasonal_order = seasonal_order,
                                                                         enforce_stationarity = True,
                                                                         enforce_invertibility = True,
-                                                                   ).fit(disp=False)
+                                                                   ).fit(disp=0)
             
         
         sarimax_fittedvalues = sarimax_model.fittedvalues

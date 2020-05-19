@@ -2,6 +2,10 @@
 utility script for optimization techniques
 """
 
+
+import warnings
+warnings.filterwarnings('ignore')
+
 from hyperopt import hp, fmin, tpe, Trials
 
 # local methods
@@ -90,7 +94,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             trials = Trials()
             
-            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=100)
+            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=100, show_progressbar=False, verbose=False)
             
             best = best['span']
             
@@ -111,7 +115,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             trials = Trials()
             
-            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=200)
+            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=200, show_progressbar=False, verbose=False)
             
         except Exception as e:
             best = str(e)
@@ -128,7 +132,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             trials = Trials()
             
-            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=100)
+            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=100, show_progressbar=False, verbose=False)
             
             best = int(best['nh'])
             
@@ -159,7 +163,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             trials = Trials()
             
-            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=200)
+            best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=200, show_progressbar=False, verbose=False)
             
         except Exception as e:
             best = str(e)
