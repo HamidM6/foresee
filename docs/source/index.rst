@@ -3,12 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to foresee's documentation!
+foresee
 ===================================
+
+Welcome to foresee documentation!
+
+foresee is a python package. Provided a time series and its parameters, foresee can generate forecasts using several time series forecasting models in python, can tune hyper parameters of these models, and can compare forecast results using out of sample forecast accuracy.
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   foresee/introduction
+   foresee/quick_start
+   foresee/modules
+   foresee/models
+   foresee/authors
+   foresee/license
+   foresee/contribute
+   
 
 
 
