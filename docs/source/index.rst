@@ -13,6 +13,10 @@ Provided a time series and its parameters, foresee can generate forecasts using 
 time series forecasting models in python, can tune hyper parameters of these models,
 and can compare forecast results using out of sample forecast accuracy.
 
+TODO:
+=====
+* add installation guide
+* link to getting started and examples
 
 .. toctree::
    :maxdepth: 2

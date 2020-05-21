@@ -1,3 +1,13 @@
+===========
+Quick Start
+===========
+
+Install foresee
 ===============
-Getting Started
-===============
+
+*foresee* is hosted on PyPI and can be installed with pip.
+
+.. code-block:: shell
+	pip install foresee
+
+
