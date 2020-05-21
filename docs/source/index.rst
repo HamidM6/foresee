@@ -6,9 +6,12 @@
 foresee
 ===================================
 
-Welcome to foresee documentation!
+Welcome to *foresee* documentation!
 
-foresee is a python package. Provided a time series and its parameters, foresee can generate forecasts using several time series forecasting models in python, can tune hyper parameters of these models, and can compare forecast results using out of sample forecast accuracy.
+*foresee* is a python package.
+Provided a time series and its parameters, foresee can generate forecasts using several
+time series forecasting models in python, can tune hyper parameters of these models,
+and can compare forecast results using out of sample forecast accuracy.
 
 
 .. toctree::
