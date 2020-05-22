@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -32,7 +32,8 @@ release = '0.1.0a8'
 # ones.
 extensions = [
 					'sphinx.ext.autodoc',
-					'sphinx.ext.viewcode'
+					'sphinx.ext.viewcode',
+					'sphinx.ext.napoleon'
 			]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -58,6 +59,6 @@ html_static_path = []
 
 autodoc_mock_imports = ['fbprophet']
 master_doc = 'index'
-autodoc_default_options = ['members', 'undoc-members', 'private-members', 'special-members', 'inherited-members', 'show-inheritance']
+# autodoc_default_options = ['members', 'undoc-members', 'private-members', 'special-members', 'inherited-members', 'show-inheritance']
 
 

@@ -6,7 +6,22 @@ import numpy as np
 import pandas as pd
 
 def compute_wfa(y, yhat, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    y : [type]
+        [description]
+    yhat : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
     """
     weighted forecast accuracy
     
@@ -26,7 +41,27 @@ def compute_wfa(y, yhat, epsilon):
     
     
 def compute_abs_err(y, yhat):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    y : [type]
+        [description]
+    yhat : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    ValueError
+        [description]
+    """    
     #TODO: add more checks, e.g. data-type, same length, ...
     
     if any(np.isnan(y)) or any(np.isnan(yhat)):
@@ -40,7 +75,13 @@ def compute_abs_err(y, yhat):
 
 # failed attempt to extend dataframe with date-time column, too many unknowns (TODO: try again)
 def make_future_dataframe():
-    
+    """[summary]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
     df = pd.DataFrame()
     
     dates = pd.date_range()

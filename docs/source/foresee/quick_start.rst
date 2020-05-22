@@ -12,7 +12,7 @@ Install foresee
 	$ pip install foresee
 	
 Example
-=========
+========
 
 .. code-block:: python
 
@@ -88,17 +88,51 @@ Example
 	'''
 
 	result, fit_result_list = collect_result(
-												ts_df.copy(),
-												endog_colname,
-												gbkey,
-												ds_column, 
-												freq, 
-												fcst_length, 
-												run_type, 
-												holdout_length, 
-												model_list,
-												fit_execution_method,
-											)
+		ts_df.copy(),
+		endog_colname,
+		gbkey,
+		ds_column, 
+		freq, 
+		fcst_length, 
+		run_type, 
+		holdout_length, 
+		model_list,
+		fit_execution_method,
+	)
 
 	result.head()
 	# present data here
+	
+
+Example(dash UI)
+=================
+
+This simple UI accepts *csv* file for input data and has check lists to set neccessary
+parameters. Application runs at this url: http://localhost:8050/dash
+
+Excecute the following block of code then navigate to above URL, fill out time series information,
+and drop your file to be processed. Results will be returned as a table and can be downloaded.
+
+.. code-block:: python
+
+	import flask
+	import dash
+
+	server = flask.Flask(__name__)
+
+	@server.route('/')
+	def index():
+		return 'Flask root.'
+
+	from foresee.webapp.dash_app import app
+
+	if __name__ == '__main__':
+		app.run_server()
+
+
+
+
+
+
+
+

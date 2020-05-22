@@ -8,7 +8,7 @@ Modules Reference
    :caption: Contents:
    
    
-   modules/composer
+   modules/compose
    modules/fitter
    modules/main
    modules/utils

@@ -14,7 +14,25 @@ from foresee.models import models_util
 from foresee.models import param_optimizer
 
 def holt_winters_fit_forecast(ts, fcst_len, freq, params):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    ts : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    freq : [type]
+        [description]
+    params : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
     try:
         hw_model = ExponentialSmoothing(
                                             endog = ts,
@@ -55,7 +73,31 @@ def holt_winters_fit_forecast(ts, fcst_len, freq, params):
 
 
 def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    data_dict : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     model = 'holt_winters'
     
     complete_fact = data_dict['complete_fact']

@@ -16,7 +16,25 @@ from foresee.models import param_optimizer
 
 
 def sarimax_fit_forecast(ts, fcst_len, freq, params):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    ts : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    freq : [type]
+        [description]
+    params : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
     try:
         if params is None:
             sarimax_model = statsmodels.api.tsa.statespace.SARIMAX(
@@ -55,7 +73,26 @@ def sarimax_fit_forecast(ts, fcst_len, freq, params):
 
 
 def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    data_dict : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+    """    
+
     model = 'sarimax'
     
     complete_fact = data_dict['complete_fact']

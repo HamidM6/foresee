@@ -17,7 +17,29 @@ from foresee.models import sarimax
 from foresee.models import models_util
 
 def _model_wfa(p, ts_train, ts_test, model, freq, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    p : [type]
+        [description]
+    ts_train : [type]
+        [description]
+    ts_test : [type]
+        [description]
+    model : [type]
+        [description]
+    freq : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
     fcst_len = len(ts_test)
     
     if model == 'ewm_model':
@@ -69,7 +91,31 @@ def _model_wfa(p, ts_train, ts_test, model, freq, epsilon):
 
 
 def tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    train_fact : [type]
+        [description]
+    test_fact : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model : [type]
+        [description]
+    model_param_space : [type]
+        [description]
+    freq : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     ts_train = train_fact['y']
     ts_test = test_fact['y']
     
@@ -79,7 +125,36 @@ def tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilo
 
 
 def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    ts_train : [type]
+        [description]
+    ts_test : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model : [type]
+        [description]
+    model_param_space : [type]
+        [description]
+    freq : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """    
+
     # TODO: fill out function description
     
     if model == 'ewm_model':

@@ -11,7 +11,23 @@ from foresee.models import param_optimizer
 
 
 def ewm_fit_forecast(ts, fcst_len, span):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    ts : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    span : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     try:
         
         ewm_model = pd.Series(ts).ewm(span=span)
@@ -32,7 +48,31 @@ def ewm_fit_forecast(ts, fcst_len, span):
 
 
 def fit_ewm(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    data_dict : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     model = 'ewm_model'
     
     complete_fact = data_dict['complete_fact']

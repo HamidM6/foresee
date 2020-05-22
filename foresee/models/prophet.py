@@ -14,15 +14,14 @@ import os
 from foresee.models import models_util
 
 class suppress_stdout_stderr(object):
-    '''
-    A context manager for doing a "deep suppression" of stdout and stderr in
-    Python, i.e. will suppress all print, even if the print originates in a
-    compiled C/Fortran sub-function.
-       This will not suppress raised exceptions, since exceptions are printed
-    to stderr just before a script exits, and after the context manager has
-    exited (at least, I think that is why it lets exceptions through).
+    """[summary]
 
-    '''
+    Parameters
+    ----------
+    object : [type]
+        [description]
+    """
+
     def __init__(self):
         # Open a pair of null files
         self.null_fds = [os.open(os.devnull, os.O_RDWR) for x in range(2)]
@@ -43,9 +42,24 @@ class suppress_stdout_stderr(object):
             os.close(fd)
 
             
-            
 def prophet_fit_forecast(df, fcst_len, freq):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    df : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    freq : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     df = df[['date_stamp','y']].reset_index(drop=True)
     df.columns = ['ds', 'y']
     
@@ -83,7 +97,31 @@ def prophet_fit_forecast(df, fcst_len, freq):
 
 
 def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    data_dict : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     model = 'ewm_model'
     prophet_params = model_params[model]
     

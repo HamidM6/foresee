@@ -43,7 +43,38 @@ def collect_result(
                         processing_method,
                         tune,
                     ):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    raw_fact : [type]
+        [description]
+    endog_colname : [type]
+        [description]
+    gbkey : [type]
+        [description]
+    ds_column : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_length : [type]
+        [description]
+    run_type : [type]
+        [description]
+    holdout_length : [type]
+        [description]
+    model_list : [type]
+        [description]
+    processing_method : [type]
+        [description]
+    tune : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
     
     pre_processed_dict, param_config = _pre_process_user_inputs(
                                                                     raw_fact,
@@ -81,10 +112,39 @@ def _pre_process_user_inputs(
                                     holdout_length, 
                                     model_list
                             ):
-    """
-    add or rename date stamp column in input dataframe
-    if comparing models results, separate input data to train-test dataframes
-    """
+    """[summary]
+
+    Parameters
+    ----------
+    raw_fact : [type]
+        [description]
+    endog_colname : [type]
+        [description]
+    gbkey : [type]
+        [description]
+    ds_column : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_length : [type]
+        [description]
+    run_type : [type]
+        [description]
+    holdout_length : [type]
+        [description]
+    model_list : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """    
     
     # next 4-lines can be done better
     

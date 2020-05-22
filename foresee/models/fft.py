@@ -18,16 +18,29 @@ def reconstruct_signal(
                          fft_terms_for_reconstruction,
                          linear_trend
                       ):
-    """
+    """[summary]
 
-    :param n_periods:
-    :param fft_model:
-    :param ft_sample_frequencies:
-    :param fft_terms_for_reconstruction:
-    :param linear_trend:
-    :return:
-    """
-    
+    Parameters
+    ----------
+    n_periods : [type]
+        [description]
+    forecast_len : [type]
+        [description]
+    fft_model : [type]
+        [description]
+    ft_sample_frequencies : [type]
+        [description]
+    fft_terms_for_reconstruction : [type]
+        [description]
+    linear_trend : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     pi = np.pi
     t = np.arange(0, n_periods+forecast_len)
     restored_sig = np.zeros(t.size)
@@ -42,7 +55,22 @@ def reconstruct_signal(
 
 
 def fft_fit_forecast(ts, fcst_len, n_harmonics):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    ts : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    n_harmonics : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
     ts_len = len(ts)
     
     try:
@@ -91,7 +119,31 @@ def fft_fit_forecast(ts, fcst_len, n_harmonics):
 
 
 def fit_fft(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    data_dict : [type]
+        [description]
+    freq : [type]
+        [description]
+    fcst_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     model = 'fft'
     
     complete_fact = data_dict['complete_fact']

@@ -12,6 +12,34 @@ dask.config.set(scheduler='processes')
 from foresee.scripts import fitter
 
 def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, tune, epsilon):
+    """[summary]
+
+    Parameters
+    ----------
+    dict_key : [type]
+        [description]
+    dict_values : [type]
+        [description]
+    model_list : [type]
+        [description]
+    freq : [type]
+        [description]
+    forecast_len : [type]
+        [description]
+    model_params : [type]
+        [description]
+    run_type : [type]
+        [description]
+    tune : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
     
     fit_result = dict()
     fit_result['ts_id'] = dict_key
@@ -30,7 +58,31 @@ def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len,
 
 # non-parallel fit function
 def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method, tune):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    pre_processed_dict : [type]
+        [description]
+    model_params : [type]
+        [description]
+    param_config : [type]
+        [description]
+    gbkey : [type]
+        [description]
+    run_type : [type]
+        [description]
+    processing_method : [type]
+        [description]
+    tune : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     freq = param_config['FREQ']
     forecast_len = param_config['FORECAST_LEN']
     model_list = param_config['MODEL_LIST']
@@ -80,7 +132,23 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
 
 
 def combine_to_dataframe(fit_result_list, model_list, run_type):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    fit_result_list : [type]
+        [description]
+    model_list : [type]
+        [description]
+    run_type : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
     if run_type == 'best_model':
 
         fit_result_list = _find_best_model(fit_result_list, model_list)
@@ -140,7 +208,21 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
 
 
 def _find_best_model(fit_result_list, model_list):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    fit_result_list : [type]
+        [description]
+    model_list : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     for result_dict in fit_result_list:
         model_wfa_dict = dict()
         
@@ -154,7 +236,21 @@ def _find_best_model(fit_result_list, model_list):
 
 # not in use
 def _transform_dataframe_to_dict(raw_fact, gbkey):
-    
+    """[summary]
+
+    Parameters
+    ----------
+    raw_fact : [type]
+        [description]
+    gbkey : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """    
+
     data_param_list = list()
     
     if gbkey is None:
