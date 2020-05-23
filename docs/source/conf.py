@@ -57,7 +57,7 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
 
-autodoc_mock_imports = ['fbprophet']
+autodoc_mock_imports = ['numpy','pandas','statsmodels','fbprophet','hyperopt']
 master_doc = 'index'
 # autodoc_default_options = ['members', 'undoc-members', 'private-members', 'special-members', 'inherited-members', 'show-inheritance']
 
