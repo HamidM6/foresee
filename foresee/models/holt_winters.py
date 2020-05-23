@@ -1,5 +1,5 @@
 """
-Holt-Winters
+Holt-Winters from statsmodels
 """
 
 import warnings

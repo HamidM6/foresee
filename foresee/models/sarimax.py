@@ -1,5 +1,5 @@
 """
-sarimax from statsmodels
+SARIMAX from statsmodels
 """
 
 

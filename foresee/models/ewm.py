@@ -1,5 +1,5 @@
 """
-exponentially weighted moving average
+Exponentially Weighted Mean
 """
 
 import numpy as np

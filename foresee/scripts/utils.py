@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-local utility functions 
+Local utility functions 
 """
 
 import os

@@ -1,5 +1,5 @@
 """
-Prophet: facebook's time series forecasting platform.
+Prophet from fbprophet
 """
 
 import warnings

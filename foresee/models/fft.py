@@ -1,5 +1,5 @@
 """
-fast fourier transform
+Fast Fourier Transformation
 """
 
 import numpy as np

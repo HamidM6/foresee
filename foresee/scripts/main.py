@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-combine user input with parameters configuration and stat models configuration
+Joins user input with parameters configuration and stat models configuration
+and combines forecast results
 """
 
 import os
@@ -17,18 +18,6 @@ model_params = utils.read_json('model_params.json')
 # parameters configuration
 param_config = utils.read_json('param_config.json')
 
-
-
-"""
-TODO: provide function documentation
-"""
-
-"""
-run_type:
-    all_models: return the result for all models without comparing out of sample forecast accuracy
-    best_model: return the result for model with highest out of sample forecast accuracy
-    all_best:   return the result for all models and indicate the model with highest out of sample forecast accuracy
-"""
 
 def collect_result(
                         raw_fact,

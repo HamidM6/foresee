@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-manage input and output of forecasting models
+Controls input and output of forecasting process
 """
 
 import pandas as pd

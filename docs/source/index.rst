@@ -11,12 +11,28 @@ Welcome to *foresee* documentation!
 *foresee* is a python package.
 Provided a time series and its parameters, foresee can generate forecasts using several
 time series forecasting models in python, can tune hyper parameters of these models,
-and can compare forecast results using out of sample forecast accuracy.
+and can compare their forecast results using out of sample forecast accuracy. This library
+can process more than one time series if a time series id is provided. To get started, install *foresee*
+using pip
 
-TODO:
-=====
-* add installation guide
-* link to getting started and examples
+.. code-block:: shell
+
+	$ pip install foresee
+	
+and try one of these examples.
+
+* `single time series <https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20one%20column%20input%20dataframe.ipynb>`_
+* `many time series <https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20multi%20column%20input%20dataframe.ipynb>`_
+* `drop file to forecast <https://github.com/HamidM6/foresee/blob/master/foresee/examples/drop%20file%20to%20forecast.ipynb>`_
+
+Similar examples are available in *Quick Start* section of this documentation.
+
+
+.. note::
+	Code and documentation for this library are still under development and will change frequently. 
+
+
+
 
 .. toctree::
    :maxdepth: 2
