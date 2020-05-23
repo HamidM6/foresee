@@ -1,9 +1,1 @@
-numpy
-pandas
-statsmodels
-fbprophet
-dask
-hyperopt
-flask
-dash
 importlib_resources
