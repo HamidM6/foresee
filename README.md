@@ -5,6 +5,7 @@ Provided a time series and a few parameters, foresee can generate forecasts usin
 forecasting models in python and if requested, it can find the best model and results using
 out of sample forecast accuracy.
 
+
 Example
 =======
 [basic example, one-column dataframe, no UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20one%20column%20input%20dataframe.ipynb)
@@ -17,12 +18,16 @@ Example
 Documentation
 =============
 
-[read the docs](https://foresee.readthedocs.io/en/master/)
+[read the docs](https://foresee.readthedocs.io/en/latest/)
 
-How to get it
+
+installation
 =============
 
-coming soon...
+```
+pip install foresee
+```
+
 
 Contributing
 ============
