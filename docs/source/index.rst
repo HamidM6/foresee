@@ -21,10 +21,10 @@ using pip
 	
 and try one of these examples.
 
-* `single time series <https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20one%20column%20input%20dataframe.ipynb>`_
-* `many time series <https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20multi%20column%20input%20dataframe.ipynb>`_
-* `drop file to forecast <https://github.com/HamidM6/foresee/blob/master/foresee/examples/drop%20file%20to%20forecast.ipynb>`_
-
+* :ref:`single-time-series`
+* :ref:`many-time-series`
+* :ref:`drop-file-forecast`
+ 
 Similar examples are available in *Quick Start* section of this documentation.
 
 

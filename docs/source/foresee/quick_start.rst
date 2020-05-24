@@ -11,8 +11,10 @@ Install foresee
 	
 	$ pip install foresee
 	
-Example
-========
+.. _single-time-series:
+	
+Example 1: one time series as a single column dataframe
+=======================================================
 
 .. code-block:: python
 
@@ -102,10 +104,97 @@ Example
 
 	result.head()
 	# present data here
-	
 
-Example(dash UI)
-=================
+.. _many-time-series:
+
+Example 2: multiple time series as a dataframe with a time series id column
+===========================================================================
+
+.. code-block:: python
+
+	import warnings
+	warnings.filterwarnings("ignore")
+
+	import pandas as pd
+	import numpy as np
+	from io import StringIO
+	import importlib_resources
+
+	# import main from foresee.scripts
+	from foresee.scripts import main	
+	# upload sample time-series dataframe with columns(id, date_stamp, y)
+
+	test_data_light_txt = importlib_resources.files('foresee.data').joinpath('test_data_light.csv').read_text()
+
+	ts_df = pd.read_csv(StringIO(test_data_light_txt))
+
+
+	ts_df['date_stamp'] = pd.to_datetime(ts_df['date_stamp'])
+	ts_df.head()
+	
+	# user defind parameters
+
+	# time series values column name: required if input dataframe has more than one column
+
+	endog_colname = 'y'
+
+	if len(ts_df.columns) > 1 and endog_colname is None:
+		raise ValueError('time series column name is required!!!')
+
+	# time series frequency
+	freq = 5
+
+	# out of sample forecast length
+	fcst_length = 10
+
+	# available forecasting models
+	model_list = ['ewm_model', 'fft', 'holt_winters', 'prophet', 'sarimax']
+
+	# avilable run types: 'best_model', 'all_best', 'all_models'
+	run_type = 'all_best'
+
+	# if comparing models (run_type in 'best_model' or 'all_best') then holdout length is required
+
+	if run_type == 'all_models':
+		holdout_length = None
+	else:
+		holdout_length = 20
+		
+	# fit-forecast computations can be done in parallel for each time series. requires dask library!!!
+	# for sequential processing set fit_execution_method to 'non_parallel'
+
+	fit_execution_method = 'parallel'
+
+
+	# since we have two time series in this dataset, time series id column name and date-time column name are required.
+	gbkey = 'id'
+	ds_column = 'date_stamp'
+
+	'''
+	result:  dataframe containing fitted values and future forecasts
+	fit_results_list:  list of dictionaries containing fitted values, forecasts, and errors (useful for debuging)
+	'''
+
+	result, fit_result_list = main.collect_result(
+														ts_df.copy(),
+														endog_colname,
+														gbkey,
+														ds_column, 
+														freq, 
+														fcst_length, 
+														run_type, 
+														holdout_length, 
+														model_list,
+														fit_execution_method,
+												)
+
+	result.head()
+
+
+.. _drop-file-forecast:
+
+Example 3: run forecasts with UI app
+====================================
 
 This simple UI accepts *csv* file for input data and has check lists to set neccessary
 parameters. Application runs at this url: http://localhost:8050/dash
