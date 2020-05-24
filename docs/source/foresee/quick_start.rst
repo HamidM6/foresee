@@ -77,6 +77,7 @@ Example 1: one time series as a single column dataframe
 	# we are working with one time series and no date-time column so time series id and date-time column name are set to None.
 	gbkey = None
 	ds_column = None
+	tune = False
 
 
 	# we are fitting one time series in this example so no need to parallelize.
@@ -100,6 +101,7 @@ Example 1: one time series as a single column dataframe
 		holdout_length, 
 		model_list,
 		fit_execution_method,
+		tune
 	)
 
 	result.head()
@@ -169,6 +171,7 @@ Example 2: multiple time series as a dataframe with a time series id column
 	# since we have two time series in this dataset, time series id column name and date-time column name are required.
 	gbkey = 'id'
 	ds_column = 'date_stamp'
+	tune = True
 
 	'''
 	result:  dataframe containing fitted values and future forecasts
@@ -176,17 +179,18 @@ Example 2: multiple time series as a dataframe with a time series id column
 	'''
 
 	result, fit_result_list = main.collect_result(
-														ts_df.copy(),
-														endog_colname,
-														gbkey,
-														ds_column, 
-														freq, 
-														fcst_length, 
-														run_type, 
-														holdout_length, 
-														model_list,
-														fit_execution_method,
-												)
+			ts_df.copy(),
+			endog_colname,
+			gbkey,
+			ds_column, 
+			freq, 
+			fcst_length, 
+			run_type, 
+			holdout_length, 
+			model_list,
+			fit_execution_method,
+			tune
+	)
 
 	result.head()
 
