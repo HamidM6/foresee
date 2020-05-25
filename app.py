@@ -2,7 +2,6 @@
 import flask
 import dash
 
-from foresee.webapp.dash_app import app
 
 server = flask.Flask(__name__)
 app = dash.Dash(__name__, server=server)
@@ -11,6 +10,7 @@ app = dash.Dash(__name__, server=server)
 # def index():
     # return 'Flask root.'
 
+from foresee.webapp.dash_app import app
 
 if __name__ == '__main__':
     app.run_server()
