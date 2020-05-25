@@ -19,14 +19,14 @@ import dash_html_components as html
 import dash_table
 
 
-server = flask.Flask(__name__)
+# server = flask.Flask(__name__)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(
 					__name__,
 					external_stylesheets=external_stylesheets,
-					server=server
+					# server=server
 				)
 
 
