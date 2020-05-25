@@ -5,6 +5,7 @@ fbprophet
 hyperopt
 dask
 dask[delayed]
+dask[compute]
 importlib_resources
 flask
 dash
