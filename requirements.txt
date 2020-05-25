@@ -1,2 +1,4 @@
 importlib_resources
+flask
+dash
 gunicorn
