@@ -25,8 +25,7 @@ and try one of these examples.
 * :ref:`many-time-series`
 * :ref:`drop-file-forecast`
  
-Similar examples are available in *Quick Start* section of this documentation.
-
+or try it out at: https://easy-forecast.herokuapp.com/
 
 .. note::
 	Code and documentation for this library are still under development and will change frequently. 
