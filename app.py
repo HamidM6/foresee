@@ -3,8 +3,8 @@ import flask
 import dash
 
 
-server = flask.Flask(__name__)
-app = dash.Dash(__name__, server=server)
+# server = flask.Flask(__name__)
+# app = dash.Dash(__name__, server=server)
 
 # @server.route('/')
 # def index():

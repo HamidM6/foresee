@@ -27,7 +27,7 @@ app = dash.Dash(
 					__name__,
 					external_stylesheets=external_stylesheets,
 					server=server,
-					routes_pathname_prefix='/dash/'
+					routes_pathname_prefix=''
 				)
 
 
