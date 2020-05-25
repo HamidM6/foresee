@@ -3,7 +3,7 @@ pandas
 statsmodels
 fbprophet
 hyperopt
-"dask[complete]" 
+dask[complete]
 importlib_resources
 flask
 dash
