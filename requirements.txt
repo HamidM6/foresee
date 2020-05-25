@@ -4,6 +4,7 @@ statsmodels
 fbprophet
 hyperopt
 dask
+dask[delayed]
 importlib_resources
 flask
 dash
