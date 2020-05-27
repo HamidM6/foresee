@@ -29,7 +29,33 @@ app = dash.Dash(
 server = app.server
 
 app.layout = html.Div([
-
+        
+        # TODO: provide more instruction!!!
+        dcc.Markdown('''
+        ### Note
+        
+        - ** UI and engine are under development so it's not stable and will be updated frequently. **
+        - ** This app is hosted on heroku free trail and will not function properly with large data sets.**
+        
+        #### User Guide
+        
+        - Input file needs to be in csv format and column name is required.
+        - If file contains more than one time series, a time series id column is needed.
+        - If file contains time series date-time index, a date-time column name is needed.
+        - Time series frequency is import and default value (1) value may not be optimal.
+        - Without tuning, model parameters are set to their default parameters.
+        - With tuning, model parameters are set to maximize forecast accuracy for holdout period.
+        
+        *Output has the following formats*
+        
+        > All Models: fitted values and forecast for all selected models without model comparison.\n
+        > Best Model: fitted values and forecast for best model among select models and its forecast accuracy.\n
+        > All & Best: fitted values and forecast for all selected models and their forecast accuracy and the best model.\n
+        
+        #### User Input
+        
+        '''),
+                     
 	### prompt user to provide endog column name ###
 
 	dcc.Markdown('''
