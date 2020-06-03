@@ -7,4 +7,5 @@ dask[complete]
 importlib_resources
 flask
 dash
+dash_bootstrap_components
 gunicorn
