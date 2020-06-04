@@ -165,23 +165,22 @@ def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
 #        #TODO: if failed with 'enforce_stationarity' or 'enforce_invertibility' at complete fcst, set these to false
         
         if training_err is None and complete_err is None:
-            sarimax_wfa = models_util.compute_wfa(
+            sarimax_loss = models_util.compute_mae(
                                     y = test_fact['y'].values,
                                     yhat = training_forecast.values,
-                                    epsilon = epsilon,
                                 )
             sarimax_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['sarimax_forecast'] = sarimax_fit_fcst.values
-            fit_fcst_fact['sarimax_wfa'] = sarimax_wfa
+            fit_fcst_fact['sarimax_loss'] = sarimax_loss
             
         else:
-            sarimax_wfa = -1
+            sarimax_loss = test_fact['y'].sum()
             fit_fcst_fact['sarimax_forecast'] = 0
-            fit_fcst_fact['sarimax_wfa'] = -1
+            fit_fcst_fact['sarimax_loss'] = sarimax_loss
             
         args['err'] = (training_err, complete_err)
-        args['wfa'] = sarimax_wfa
+        args['loss'] = sarimax_loss
         args['params'] = params
             
             

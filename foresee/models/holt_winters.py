@@ -166,23 +166,23 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, ep
                                                                                          )
         
         if training_err is None and complete_err is None:
-            hw_wfa = models_util.compute_wfa(
+            hw_loss = models_util.compute_mae(
                                     y = test_fact['y'].values,
                                     yhat = training_forecast.values,
-                                    epsilon = epsilon,
                                 )
+
             hw_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['holt_winters_forecast'] = hw_fit_fcst.values
-            fit_fcst_fact['holt_winters_wfa'] = hw_wfa
+            fit_fcst_fact['holt_winters_loss'] = hw_loss
             
         else:
-            hw_wfa = -1
+            hw_loss = test_fact['y'].sum()
             fit_fcst_fact['holt_winters_forecast'] = 0
-            fit_fcst_fact['holt_winters_wfa'] = -1
+            fit_fcst_fact['holt_winters_loss'] = hw_loss
             
         args['err'] = (training_err, complete_err)
-        args['wfa'] = hw_wfa
+        args['loss'] = hw_loss
         args['params'] = opt_params
         
         

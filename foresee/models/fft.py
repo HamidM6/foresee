@@ -209,23 +209,22 @@ def fit_fft(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
                                                                                 )
         
         if training_err is None and complete_err is None:
-            fft_wfa = models_util.compute_wfa(
+            fft_loss = models_util.compute_mae(
                                     y = test_fact['y'].values,
                                     yhat = training_forecast.values,
-                                    epsilon = epsilon,
                                 )
             fft_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['fft_forecast'] = fft_fit_fcst.values
-            fit_fcst_fact['fft_wfa'] = fft_wfa
+            fit_fcst_fact['fft_loss'] = fft_loss
             
         else:
-            fft_wfa = -1
+            fft_loss = test_fact['y'].sum()
             fit_fcst_fact['fft_forecast'] = 0
-            fit_fcst_fact['fft_wfa'] = -1
+            fit_fcst_fact['fft_loss'] = fft_loss
             
         args['err'] = (training_err, complete_err)
-        args['wfa'] = fft_wfa
+        args['loss'] = fft_loss
         args['n_harmonics'] = n_harmonics
         
         

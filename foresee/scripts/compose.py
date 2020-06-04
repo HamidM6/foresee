@@ -179,7 +179,7 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
             for m in model_list:
                 mdf = result_dict[m+'_fit_fcst_df']
                 df[m+'_forecast'] = mdf[m+'_forecast'].values
-                df[m+'_wfa'] = mdf[m+'_wfa'].values
+                df[m+'_loss'] = mdf[m+'_loss'].values
 
             df['ts_id'] = result_dict['ts_id']
             df['best_model'] = bm
@@ -224,12 +224,12 @@ def _find_best_model(fit_result_list, model_list):
     """    
 
     for result_dict in fit_result_list:
-        model_wfa_dict = dict()
+        model_loss_dict = dict()
         
         for m in model_list:
-            model_wfa_dict[m] = result_dict[m+'_args']['wfa']
+            model_loss_dict[m] = result_dict[m+'_args']['loss']
             
-        result_dict['best_model'] = [k for k,v in model_wfa_dict.items() if v == max(model_wfa_dict.values())][0]
+        result_dict['best_model'] = [k for k,v in model_loss_dict.items() if v == min(model_loss_dict.values())][0]
     
     return fit_result_list
 

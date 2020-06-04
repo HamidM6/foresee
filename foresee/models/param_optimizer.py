@@ -16,6 +16,7 @@ from foresee.models import sarimax
 
 from foresee.models import models_util
 
+
 def _model_wfa(p, ts_train, ts_test, model, freq, epsilon):
     """[summary]
 
@@ -89,6 +90,78 @@ def _model_wfa(p, ts_train, ts_test, model, freq, epsilon):
         
     return 1 - wfa
 
+
+def _model_loss(p, ts_train, ts_test, model, freq, epsilon):
+    """[loss: MAE]
+
+    Parameters
+    ----------
+    p : [type]
+        [description]
+    ts_train : [type]
+        [description]
+    ts_test : [type]
+        [description]
+    model : [type]
+        [description]
+    freq : [type]
+        [description]
+    epsilon : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
+    fcst_len = len(ts_test)
+    
+    if model == 'ewm_model':
+        
+        fittedvalues, yhat, err  = ewm.ewm_fit_forecast(ts_train, fcst_len, p)
+        
+        if err is None:
+            loss = models_util.compute_mae(ts_test.values, yhat.values)
+            
+        else:
+            loss = ts_test.sum()
+        
+    
+    elif model == 'holt_winters':
+        
+        fittedvalues, yhat, err  = holt_winters.holt_winters_fit_forecast(ts_train, fcst_len, freq, p)
+        
+        if err is None:
+            loss = models_util.compute_mae(ts_test.values, yhat.values)
+            
+        else:
+            loss = ts_test.sum()
+        
+    elif model == 'fft':
+        
+        fittedvalues, yhat, err  = fft.fft_fit_forecast(ts_train, fcst_len, p)
+        
+        if err is None:
+            loss = models_util.compute_mae(ts_test.values, yhat.values)
+            
+        else:
+            loss = ts_test.sum()
+            
+    elif model == 'sarimax':
+        
+        fittedvalues, yhat, err  = sarimax.sarimax_fit_forecast(ts_train, fcst_len, freq, p)
+        
+        if err is None:
+            loss = models_util.compute_mae(ts_test.values, yhat.values)
+            
+        else:
+            loss = ts_test.sum()
+            
+    else:
+            loss = ts_test.sum()
+        
+    return loss
 
 def tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilon):
     """[summary]
@@ -165,7 +238,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             space = hp.quniform('span', span_lb, span_ub, 1)
             
-            f_obj = lambda p: _model_wfa(p, ts_train, ts_test, model, freq, epsilon)
+            f_obj = lambda p: _model_loss(p, ts_train, ts_test, model, freq, epsilon)
             
             trials = Trials()
             
@@ -186,7 +259,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
                         'd_slope': hp.uniform('d_slope', 0, 1)
                     }
             
-            f_obj = lambda p: _model_wfa(p, ts_train, ts_test, model, freq, epsilon)
+            f_obj = lambda p: _model_loss(p, ts_train, ts_test, model, freq, epsilon)
             
             trials = Trials()
             
@@ -203,7 +276,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
             
             space = hp.quniform('nh', nh_lb, nh_ub, 1)
             
-            f_obj = lambda p: _model_wfa(int(p), ts_train, ts_test, model, freq, epsilon)
+            f_obj = lambda p: _model_loss(int(p), ts_train, ts_test, model, freq, epsilon)
             
             trials = Trials()
             
@@ -234,7 +307,7 @@ def optimize_param(ts_train, ts_test, fcst_len, model, model_param_space, freq, 
                         'cq': hp.randint('cq', max_cq)
                     }
             
-            f_obj = lambda p: _model_wfa(p, ts_train, ts_test, model, freq, epsilon)
+            f_obj = lambda p: _model_loss(p, ts_train, ts_test, model, freq, epsilon)
             
             trials = Trials()
             

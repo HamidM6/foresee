@@ -175,24 +175,23 @@ def fit_prophet(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
                                                                                     )
         
         if training_err is None and complete_err is None:
-            prophet_wfa = models_util.compute_wfa(
+            prophet_loss = models_util.compute_mae(
                                     y = test_fact['y'].values,
                                     yhat = training_forecast.values,
-                                    epsilon = epsilon,
                                 )
             
             prophet_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['prophet_forecast'] = prophet_fit_fcst.values
-            fit_fcst_fact['prophet_wfa'] = prophet_wfa
+            fit_fcst_fact['prophet_loss'] = prophet_loss
             
         else:
-            prophet_wfa = -1
+            prophet_loss = test_fact['y'].sum()
             fit_fcst_fact['prophet_forecast'] = 0
-            fit_fcst_fact['prophet_wfa'] = prophet_wfa
+            fit_fcst_fact['prophet_loss'] = prophet_loss
             
         args['err'] = (training_err, complete_err)
-        args['wfa'] = prophet_wfa
+        args['loss'] = prophet_loss
             
             
     return fit_fcst_fact, args
