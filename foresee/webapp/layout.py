@@ -19,26 +19,32 @@ intro_layout = html.Div(
 		html.Br(),
 		html.H3('NOTE'),
 		html.Br(),
-		dbc.Alert("UI and engine are under development so it's not stable and will be updated frequently.", color="warning"),
-		dbc.Alert("This app is hosted on heroku free trail and will not function properly with large data sets.", color="warning"),
+		dbc.Alert(
+			[
+				html.H5("UI and engine are under development so it's not stable and will be updated frequently."),
+				html.H5("This app is hosted on heroku free trail and will not function properly with large data sets."),
+			],
+			color="warning"
+				),
 		html.Br(),
-		dcc.Markdown('''
-			### User Guide
-				
-			- Input file needs to be in csv format and column name is required.
-			- If file contains more than one time series, a time series id column is needed.
-			- If file contains time series date-time index, a date-time column name is needed.
-			- Time series frequency is import and default value (1) value may not be optimal.
-			- Without tuning, model parameters are set to their default parameters.
-			- With tuning, model parameters are set to maximize forecast accuracy for holdout period.
-			
-			**Output has the following formats**
-			
-			> All Models: fitted values and forecast for all selected models without model comparison.\n
-			> Best Model: fitted values and forecast for best model among select models and its forecast accuracy.\n
-			> All & Best: fitted values and forecast for all selected models and their forecast accuracy and the best model.\n		
-		'''
-		)
+		dbc.Alert(
+			[
+				html.H2('User Guide'),
+				html.Br(),
+				html.H4('Input file needs to be in csv format and column name is required.'),
+				html.H4('If file contains more than one time series, a time series id column is needed.'),
+				html.H4('If file contains time series date-time index, a date-time column name is needed.'),
+				html.H4('Time series frequency is import and default value (1) value may not be optimal.'),
+				html.H4('Without tuning, model parameters are set to their default parameters.'),
+				html.H4('With tuning, model parameters are set to maximize forecast accuracy for holdout period.'),
+				html.Br(),
+				html.H2('Output has the following formats'),
+				html.Br(),
+				html.H4('All Models: fitted values and forecast for all selected models without model comparison.'),
+				html.H4('Best Model: fitted values and forecast for best model among select models and its forecast accuracy.'),
+				html.H4('All & Best: fitted values and forecast for all selected models and their forecast accuracy and the best model.'),
+			],
+			color='primary'),
 	]
 
 )
@@ -291,9 +297,8 @@ main_layout = html.Div([
 		),
 	]),
 
-	
-	### upload file box ###
 
+	### upload file box ###
 	dcc.Upload(
 		id='upload-data',
 		children=html.Div([
@@ -315,7 +320,6 @@ main_layout = html.Div([
 	),
     
 	### display a sample of input data ###
-
 	html.Div(
 			dcc.Loading(
 				id="loading-sample-input",
@@ -325,7 +329,6 @@ main_layout = html.Div([
 	),
 
 	### display final result dataframe ###
-
 	html.Div(
 			dcc.Loading(
 				id="loading-result",
@@ -334,19 +337,3 @@ main_layout = html.Div([
 			)
 	)
 ])
-
-# models and parameters layout
-
-# model_params_layout = html.Div(
-#     [
-# 		html.Br(),
-#         dbc.Row(dbc.Alert("Enter (p,d,q) values of sarimax.", color="primary")),
-#         dbc.Row(
-#             [
-#                 dbc.Col(html.H2('SARIMAX: '), align="start", width=2),
-#                 dbc.Col(dcc.Input(id='sarimax-order-input', type='text', placeholder='1,1,1', style={'width': '100%'}), align="center", width=2),
-#                 dbc.Col(html.Div(id='sarimax-order-output'), align="end", width=2),
-#             ],
-#         ),
-#     ]
-# )
