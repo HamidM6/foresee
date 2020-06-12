@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
 
+
 # app layout
 app_layout = dbc.Container([
 	dcc.Tabs(id='tab-collection', value='tab-1', children=[
@@ -17,7 +18,7 @@ app_layout = dbc.Container([
 intro_layout = html.Div(
 	[
 		html.Br(),
-		html.H3('NOTE'),
+		html.H2('NOTE'),
 		html.Br(),
 		dbc.Alert(
 			[
@@ -45,6 +46,26 @@ intro_layout = html.Div(
 				html.H4('All & Best: fitted values and forecast for all selected models and their forecast accuracy and the best model.'),
 			],
 			color='primary'),
+		html.Br(),
+		html.Div([
+			dbc.Row(dbc.Col(html.H2('sample dataset header'))),
+			html.Hr(),
+			dbc.Row([
+				dbc.Col(html.Div('id')),
+				dbc.Col(html.Div('date_stamp')),
+				dbc.Col(html.Div('y')),
+			]),
+			dbc.Row([
+				dbc.Col(html.Div('1')),
+				dbc.Col(html.Div('2020-01-01')),
+				dbc.Col(html.Div('65')),
+			]),
+			dbc.Row([
+				dbc.Col(html.Div('1')),
+				dbc.Col(html.Div('2020-01-02')),
+				dbc.Col(html.Div('45')),
+			]),
+		], style={'width': '25%'})
 	]
 
 )

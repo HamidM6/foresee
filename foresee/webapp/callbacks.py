@@ -228,4 +228,3 @@ def register_callbacks(app):
                 
             except Exception as e:
                 return display_dataframe(str(e), None)
-
