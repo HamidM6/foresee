@@ -11,7 +11,7 @@ dask.config.set(scheduler='processes')
 
 from foresee.scripts import fitter
 
-def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len, model_params, run_type, tune, epsilon):
+def generate_fit_forecast(dict_key, dict_values, param_config, model_params):
     """[summary]
 
     Parameters
@@ -41,6 +41,8 @@ def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len,
         [description]
     """    
     
+    model_list = param_config['MODEL_LIST']
+    
     fit_result = dict()
     fit_result['ts_id'] = dict_key
     
@@ -51,13 +53,12 @@ def generate_fit_forecast(dict_key, dict_values, model_list, freq, forecast_len,
         (
          fit_result[m+'_fit_fcst_df'],
          fit_result[m+'_args']
-         ) = f.fit(dict_values, freq, forecast_len, model_params, run_type, tune, epsilon)
+         ) = f.fit(dict_values, param_config, model_params)
     
     return fit_result
 
 
-# non-parallel fit function
-def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type, processing_method, tune):
+def compose_fit(pre_processed_dict, model_params, param_config):
     """[summary]
 
     Parameters
@@ -83,10 +84,14 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
         [description]
     """    
 
-    freq = param_config['FREQ']
-    forecast_len = param_config['FORECAST_LEN']
+#    freq = param_config['FREQ']
+#    forecast_len = param_config['FORECAST_LEN']
+#    model_list = param_config['MODEL_LIST']
+#    epsilon = param_config['EPSILON']
+
+    processing_method = param_config['PROCESSING_METHOD']
     model_list = param_config['MODEL_LIST']
-    epsilon = param_config['EPSILON']
+    output_format = param_config['OUTPUT_FORMAT']
     
     # non-parallel fit
     
@@ -97,13 +102,8 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
             fit_task = dask.delayed(generate_fit_forecast)(
                                                                dict_key,
                                                                dict_values,
-                                                               model_list,
-                                                               freq,
-                                                               forecast_len,
+                                                               param_config,
                                                                model_params,
-                                                               run_type,
-                                                               tune,
-                                                               epsilon
                                                           )
             task_list.append(fit_task)
 
@@ -116,22 +116,17 @@ def compose_fit(pre_processed_dict, model_params, param_config, gbkey, run_type,
             fit_result = generate_fit_forecast(
                                                     dict_key,
                                                     dict_values,
-                                                    model_list,
-                                                    freq,
-                                                    forecast_len,
+                                                    param_config,
                                                     model_params,
-                                                    run_type,
-                                                    tune,
-                                                    epsilon
                                             )
             fit_result_list.append(fit_result)
         
-    result = combine_to_dataframe(fit_result_list, model_list, run_type)
+    result = combine_to_dataframe(fit_result_list, model_list, output_format)
         
     return result, fit_result_list
 
 
-def combine_to_dataframe(fit_result_list, model_list, run_type):
+def combine_to_dataframe(fit_result_list, model_list, output_format):
     """[summary]
 
     Parameters
@@ -149,7 +144,7 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
         [description]
     """
 
-    if run_type == 'best_model':
+    if output_format == 'best_model':
 
         fit_result_list = _find_best_model(fit_result_list, model_list)
         
@@ -166,7 +161,7 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
 
         result = pd.concat(df_list, axis=0, ignore_index=True)
         
-    elif run_type == 'all_best':
+    elif output_format == 'all_best':
         
         fit_result_list = _find_best_model(fit_result_list, model_list)
         
@@ -192,13 +187,13 @@ def combine_to_dataframe(fit_result_list, model_list, run_type):
         df_list = list()
         
         for result_dict in fit_result_list:
-            df = pd.DataFrame()
+            m1 = model_list[0]
+            df = result_dict[m1+'_fit_fcst_df']
             
-            for m in model_list:
+            for m in model_list[1:]:
                 mdf = result_dict[m+'_fit_fcst_df']
                 df[m+'_forecast'] = mdf[m+'_forecast'].values
                 
-            df['data_split'] = mdf['data_split'].values
             df['ts_id'] = result_dict['ts_id']
             df_list.append(df)
         

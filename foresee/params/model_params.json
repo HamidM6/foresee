@@ -7,12 +7,7 @@
 							"cd": 2,
 							"cq": 3
 						},
-"holt_winters":			[
-							"smoothing_level",
-							"smoothing_slope",
-							"smoothing_seasonal",
-							"damping_slope"
-						],
+"holt_winters":			{},
 "prophet":				{
 							"changepoint_prior_scale": 1,
 							"seasonality_prior_scale": 50
@@ -21,6 +16,6 @@
 							"n_harmonics": 20
 						},
 "ewm_model":			{
-							"span": 20
+							"alpha": [0, 1]
 						}
 }
