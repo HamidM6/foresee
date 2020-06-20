@@ -16,9 +16,9 @@ try it out at: https://easy-forecast.herokuapp.com/
 
 after installation
 
-[basic example, one-column dataframe, no UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20one%20column%20input%20dataframe.ipynb)
+[basic example, one-column dataframe](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%20%5B%20one%20time%20series%20as%20a%20single%20column%20dataframe%20%5D.ipynb)
 
-[basic example, multi-column dataframe, no UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%2C%20multi%20column%20input%20dataframe.ipynb)
+[basic example, multi-column dataframe](https://github.com/HamidM6/foresee/blob/master/foresee/examples/basic%20tutorial%20%5B%20multi%20column%20input%20dataframe%20%5D.ipynb)
 
 [basic example, with UI](https://github.com/HamidM6/foresee/blob/master/foresee/examples/drop%20file%20to%20forecast.ipynb)
 
