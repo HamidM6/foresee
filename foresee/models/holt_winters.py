@@ -8,12 +8,15 @@ warnings.filterwarnings('ignore')
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from hyperopt import hp, fmin, tpe, Trials
 
 # local module
 from foresee.models import models_util
 from foresee.models import param_optimizer
+from foresee.scripts import fitter
 
-def holt_winters_fit_forecast(ts, fcst_len, freq, params):
+
+def holt_winters_fit_forecast(ts, fcst_len, params=None, args=None):
     """[summary]
 
     Parameters
@@ -32,28 +35,22 @@ def holt_winters_fit_forecast(ts, fcst_len, freq, params):
     [type]
         [description]
     """
-
+    
+    freq = args['FREQ']
+    
     try:
-        hw_model = ExponentialSmoothing(
-                                            endog = ts,
-                                            trend = 'add',
-                                            damped = True,
-                                            seasonal = 'add',
-                                            seasonal_periods = freq
-                                          )
-        
         if params is None:
-            hw_model = hw_model.fit(optimized = True)
-            
+            hw_model = ExponentialSmoothing(
+                                                endog = ts,
+                                                seasonal_periods = freq
+                                              ).fit(optimized=True)
         else:
-            s_level, s_slope, s_season, d_slope = (params['s_level'], params['s_slope'], params['s_season'], params['d_slope'])
-            hw_model = hw_model.fit(
-                                                      smoothing_level = s_level,
-                                                      smoothing_slope = s_slope,
-                                                      smoothing_seasonal = s_season,
-                                                      damping_slope = d_slope,
-                                                      optimized = True,
-                                    )
+            hw_model = ExponentialSmoothing(
+                                                endog = ts,
+                                                trend = params['trend'],
+                                                seasonal = params['seasonal'],
+                                                seasonal_periods = freq
+                                              ).fit(optimized=True)
             
         hw_fittedvalues = hw_model.fittedvalues    
 
@@ -72,7 +69,34 @@ def holt_winters_fit_forecast(ts, fcst_len, freq, params):
     return hw_fittedvalues, hw_forecast, err
 
 
-def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
+def holt_winters_tune(ts_train, ts_test, params=None, args=None):
+    
+    model = 'holt_winters'
+    
+    try:
+        options = ['add', 'mul']
+        space = {
+                    'trend': hp.choice('trend', options),
+                    'seasonal': hp.choice('seasonal', options)
+                }
+        
+        f = fitter.model_loss(model)
+        f_obj = lambda params: f.fit_loss(ts_train, ts_test, params, args)
+        
+        trials = Trials()
+        best_raw = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=10, show_progressbar=False, verbose=False)
+        best = {'trend': options[best_raw['trend']], 'seasonal': options[best_raw['seasonal']]}
+        err = None
+        
+    except Exception as e:
+        err = str(e)
+        best = None
+        
+        
+    return best, err
+
+
+def holt_winters_main(data_dict, param_config, model_params):
     """[summary]
 
     Parameters
@@ -99,6 +123,11 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, ep
     """    
 
     model = 'holt_winters'
+    fcst_len = param_config['FORECAST_LEN']
+    output_format = param_config['OUTPUT_FORMAT']
+    tune = param_config['TUNE']
+    epsilon = param_config['EPSILON']  
+    freq = param_config['FREQ']
     
     complete_fact = data_dict['complete_fact']
     
@@ -115,27 +144,30 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, ep
     fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
     
     args = dict()
+    args['FREQ'] =  freq
+    
+    fit_args = dict()
 
     # no model competition    
-    if run_type in ['all_models']:
+    if output_format in ['all_models']:
         
-        hw_fitted_values, hw_forecast, err = holt_winters_fit_forecast(
-                                                                           ts = complete_fact['y'],
-                                                                           fcst_len = fcst_len,
-                                                                           freq = freq,
-                                                                           params = None
-                                                                      )
+        fitted_values, forecast, err = holt_winters_fit_forecast(
+                                                                       ts = complete_fact['y'],
+                                                                       fcst_len = fcst_len,
+                                                                       params = None,
+                                                                       args = args
+                                                                  )
         if err is None:
-            fit_fcst_fact['holt_winters_forecast'] = hw_fitted_values.append(hw_forecast).values
+            fit_fcst_fact['holt_winters_forecast'] = fitted_values.append(forecast).values
             
         else:
             fit_fcst_fact['holt_winters_forecast'] = 0
             
-        args['err'] = err
+        fit_args['err'] = err
     
     
     # with model completition            
-    if run_type in ['best_model', 'all_best']:
+    if output_format in ['best_model', 'all_best']:
         
         train_fact = data_dict['train_fact']
         test_fact = data_dict['test_fact']
@@ -143,50 +175,49 @@ def fit_holt_winters(data_dict, freq, fcst_len, model_params, run_type, tune, ep
         if tune:
             # TODO: add logic when optimization fails
             
-            model_param_space = model_params[model]
-            opt_params, trials = param_optimizer.tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilon)
+            params, err = param_optimizer.tune(train_fact, test_fact, model, params=None, args=args)
             
-            args['trials'] = trials
+            fit_args['tune_err'] = err
             
         else:
-            opt_params = None
+            params = None
             
-        training_fitted_values, training_forecast, training_err = holt_winters_fit_forecast(
+        training_fitted_values, holdout_forecast, training_err = holt_winters_fit_forecast(
                                                                                                    ts = train_fact['y'],
                                                                                                    fcst_len = len(test_fact),
-                                                                                                   freq = freq,
-                                                                                                   params = opt_params,
+                                                                                                   params = params,
+                                                                                                   args = args,
                                                                                          )
         
         complete_fitted_values, complete_forecast, complete_err = holt_winters_fit_forecast(
                                                                                                    ts = complete_fact['y'],
                                                                                                    fcst_len = fcst_len,
-                                                                                                   freq = freq,
-                                                                                                   params = opt_params,
+                                                                                                   params = params,
+                                                                                                   args = args,
                                                                                          )
         
         if training_err is None and complete_err is None:
-            hw_loss = models_util.compute_mae(
-                                    y = test_fact['y'].values,
-                                    yhat = training_forecast.values,
-                                )
-
-            hw_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
+            hw_wfa = models_util.compute_wfa(
+                                                y = test_fact['y'].values,
+                                                yhat = holdout_forecast.values,
+                                                epsilon = epsilon,
+                                            )
+            hw_fit_fcst = training_fitted_values.append(holdout_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['holt_winters_forecast'] = hw_fit_fcst.values
-            fit_fcst_fact['holt_winters_loss'] = hw_loss
+            fit_fcst_fact['holt_winters_wfa'] = hw_wfa
             
         else:
-            hw_loss = test_fact['y'].sum()
+            hw_wfa = -1
             fit_fcst_fact['holt_winters_forecast'] = 0
-            fit_fcst_fact['holt_winters_loss'] = hw_loss
+            fit_fcst_fact['holt_winters_wfa'] = -1
             
-        args['err'] = (training_err, complete_err)
-        args['loss'] = hw_loss
-        args['params'] = opt_params
+        fit_args['err'] = (training_err, complete_err)
+        fit_args['wfa'] = hw_wfa
+        fit_args['params'] = params
         
         
-    return fit_fcst_fact, args
+    return fit_fcst_fact, fit_args
 
 
 

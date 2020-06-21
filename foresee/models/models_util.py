@@ -4,6 +4,8 @@ collection of utility functions used in models section
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
 
 def compute_wfa(y, yhat, epsilon):
     """[summary]
@@ -72,10 +74,6 @@ def compute_abs_err(y, yhat):
         
     return abs(y - yhat)
 
-def compute_mae(y, yhat):
-
-    return np.mean(abs(y - yhat))
-
 
 # failed attempt to extend dataframe with date-time column, too many unknowns (TODO: try again)
 def make_future_dataframe():
@@ -91,8 +89,6 @@ def make_future_dataframe():
     dates = pd.date_range()
     
     return df
-
-
 
 
 

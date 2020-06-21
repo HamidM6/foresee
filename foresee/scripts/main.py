@@ -11,26 +11,27 @@ import datetime
 
 from foresee.scripts import utils
 from foresee.scripts import compose
+from foresee.params import constants
 
 # default model params
 model_params = utils.read_json('model_params.json')
 
-# parameters configuration
-param_config = utils.read_json('param_config.json')
+epsilon = constants.Constants().epsilon
 
 
-def collect_result(
-                        raw_fact,
-                        endog_colname,
-                        gbkey,
-                        ds_column, 
-                        freq, 
-                        fcst_length, 
-                        run_type, 
-                        holdout_length,
-                        model_list,
-                        processing_method,
-                        tune,
+
+def prepare_fit_report(
+                        ts_df,
+                        endog_colname = None,
+                        ds_colname = None, 
+                        gbkey = None,
+                        freq = 1, 
+                        fcst_length = 10, 
+                        output_format = 'all_models', 
+                        holdout_length = 5,
+                        model_list = None,
+                        processing_method = 'non_parallel',
+                        tune = False,
                     ):
     """[summary]
 
@@ -63,28 +64,34 @@ def collect_result(
     -------
     [type]
         [description]
-    """    
+    """
     
-    pre_processed_dict, param_config = _pre_process_user_inputs(
-                                                                    raw_fact,
-                                                                    endog_colname,
-                                                                    gbkey,
-                                                                    ds_column, 
-                                                                    freq, 
-                                                                    fcst_length, 
-                                                                    run_type, 
-                                                                    holdout_length,
-                                                                    model_list,
-                                                            )
+    param_config = dict()
+    
+    param_config['Y'] = endog_colname
+    param_config['DATE_STAMP'] = ds_colname
+    param_config['GBKEY'] = gbkey
+    param_config['FREQ'] = freq
+    param_config['FORECAST_LEN'] = fcst_length
+    param_config['HOLDOUT_LEN'] = holdout_length
+    param_config['MODEL_LIST'] = model_list
+    param_config['OUTPUT_FORMAT'] = output_format
+    param_config['MODEL_LIST'] = model_list
+    param_config['TUNE'] = tune
+    param_config['PROCESSING_METHOD'] = processing_method
+    param_config['EPSILON'] = epsilon
+    
+    raw_fact = ts_df.copy()
+    
+    pre_processed_dict = _pre_process_user_inputs(
+                                                            raw_fact,
+                                                            param_config,
+                                                    )
     
     result, fit_result_list = compose.compose_fit(
                                                         pre_processed_dict,
                                                         model_params,
                                                         param_config,
-                                                        gbkey,
-                                                        run_type,
-                                                        processing_method,
-                                                        tune,
                                                 )
     
     return result, fit_result_list
@@ -92,56 +99,15 @@ def collect_result(
 
 def _pre_process_user_inputs(
                                     raw_fact,
-                                    endog_colname,
-                                    gbkey,
-                                    ds_column, 
-                                    freq, 
-                                    fcst_length, 
-                                    run_type, 
-                                    holdout_length, 
-                                    model_list
+                                    param_config,
                             ):
-    """[summary]
-
-    Parameters
-    ----------
-    raw_fact : [type]
-        [description]
-    endog_colname : [type]
-        [description]
-    gbkey : [type]
-        [description]
-    ds_column : [type]
-        [description]
-    freq : [type]
-        [description]
-    fcst_length : [type]
-        [description]
-    run_type : [type]
-        [description]
-    holdout_length : [type]
-        [description]
-    model_list : [type]
-        [description]
-
-    Returns
-    -------
-    [type]
-        [description]
-
-    Raises
-    ------
-    ValueError
-        [description]
-    """    
     
-    # next 4-lines can be done better
-    
-    param_config['FREQ'] = freq
-    param_config['FORECAST_LEN'] = fcst_length
-    param_config['HOLDOUT_LEN'] = holdout_length
-    param_config['MODEL_LIST'] = model_list
-    
+    endog_colname = param_config['Y']
+    ds_colname = param_config['DATE_STAMP']
+    output_format = param_config['OUTPUT_FORMAT']
+    gbkey = param_config['GBKEY']
+    holdout_length = param_config['HOLDOUT_LEN']
+        
     # replace endog column name with 'y'
     
     if len(raw_fact.columns) == 1:
@@ -156,19 +122,18 @@ def _pre_process_user_inputs(
     
     # add or rename date-time column
     
-    if ds_column not in raw_fact.columns:
+    if ds_colname not in raw_fact.columns:
         raw_fact['date_stamp'] = pd.date_range(end=datetime.datetime.now(), periods=len(raw_fact), freq='D')
         
     else:
-        raw_fact.rename(columns={ds_column: 'date_stamp'}, inplace=True)
+        raw_fact.rename(columns={ds_colname: 'date_stamp'}, inplace=True)
         raw_fact['date_stamp'] = pd.to_datetime(raw_fact['date_stamp'])
         
-    #TODO: if user chose to compare models, then create train-holdout sets
     #TODO: missing data interpolation, needs user input!
     
     pre_processed_dict = dict()    
         
-    if run_type in ['best_model', 'all_best']:
+    if output_format in ['best_model', 'all_best']:
         
         if gbkey in raw_fact.columns:
             for k,v in raw_fact.groupby(gbkey):
@@ -197,7 +162,7 @@ def _pre_process_user_inputs(
             pre_processed_dict[1] = {'complete_fact': raw_fact}
             
     
-    return pre_processed_dict, param_config
+    return pre_processed_dict
   
 
 

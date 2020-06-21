@@ -9,13 +9,15 @@ warnings.filterwarnings('ignore')
 import numpy as np
 import pandas as pd
 import statsmodels.api
+from hyperopt import hp, fmin, tpe, Trials
 
 # local module
 from foresee.models import models_util
 from foresee.models import param_optimizer
+from foresee.scripts import fitter
 
 
-def sarimax_fit_forecast(ts, fcst_len, freq, params):
+def sarimax_fit_forecast(ts, fcst_len, params=None, args=None):
     """[summary]
 
     Parameters
@@ -43,6 +45,7 @@ def sarimax_fit_forecast(ts, fcst_len, freq, params):
                                                                         enforce_invertibility = False,
                                                                    ).fit(disp=0)
         else:
+            freq = args['FREQ']
             order = (params['p'], params['d'], params['q'])
             seasonal_order = (params['cp'], params['cd'], params['cq'], freq)
             
@@ -71,8 +74,64 @@ def sarimax_fit_forecast(ts, fcst_len, freq, params):
         
     return sarimax_fittedvalues, sarimax_forecast, err
 
+def sarimax_tune(ts_train, ts_test, params=None, args=None):
+    
+    model = 'sarimax'
+    
+    if params is None:
+        space = {
+                    'p': hp.randint('p', 5),
+                    'd': hp.randint('d', 3),
+                    'q': hp.randint('q', 5),
+                    'cp': hp.randint('cp', 3),
+                    'cd': hp.randint('cd', 2),
+                    'cq': hp.randint('cq', 3),
+                }
+    else:
+        try:
+            max_p = params['p']
+            max_d = params['d']
+            max_q = params['q']
+            max_cp = params['cp']
+            max_cd = params['cd']
+            max_cq = params['cq']
+            
+            space = {
+                        'p': hp.randint('p', max_p),
+                        'd': hp.randint('d', max_d),
+                        'q': hp.randint('q', max_q),
+                        'cp': hp.randint('cp', max_cp),
+                        'cd': hp.randint('cd', max_cd),
+                        'cq': hp.randint('cq', max_cq),
+                    }
+        except:
+            space = {
+                        'p': hp.randint('p', 5),
+                        'd': hp.randint('d', 3),
+                        'q': hp.randint('q', 5),
+                        'cp': hp.randint('cp', 3),
+                        'cd': hp.randint('cd', 2),
+                        'cq': hp.randint('cq', 3),
+                    }
+        
+    try:
+        f = fitter.model_loss(model)
+        f_obj = lambda params: f.fit_loss(ts_train, ts_test, params, args)
+        
+        trials = Trials()
+        best = fmin(f_obj, space, algo=tpe.suggest, trials=trials, max_evals=100, show_progressbar=False, verbose=False)
+        
+        err = None
+        
+    except Exception as e:
+        err = str(e)
+        best = None
+        print(err)
+        
+    return best, err
 
-def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon):
+
+def sarimax_main(data_dict, param_config, model_params):
     """[summary]
 
     Parameters
@@ -85,15 +144,14 @@ def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
         [description]
     model_params : [type]
         [description]
-    run_type : [type]
-        [description]
-    tune : [type]
-        [description]
-    epsilon : [type]
-        [description]
     """    
 
     model = 'sarimax'
+    fcst_len = param_config['FORECAST_LEN']
+    output_format = param_config['OUTPUT_FORMAT']
+    tune = param_config['TUNE']
+    epsilon = param_config['EPSILON']  
+    freq = param_config['FREQ']
     
     complete_fact = data_dict['complete_fact']
     
@@ -110,15 +168,18 @@ def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
     fit_fcst_fact = pd.concat([fitted_fact, forecast_fact], ignore_index=True)
     
     args = dict()
+    args['FREQ'] = freq
+    
+    fit_args = dict()
     
     # no model competition
-    if run_type in ['all_models']:
+    if output_format in ['all_models']:
         
         sarimax_fitted_values, sarimax_forecast, err = sarimax_fit_forecast(
                                                                             ts = complete_fact['y'],
                                                                             fcst_len = fcst_len,
-                                                                            freq = freq,
                                                                             params = None,
+                                                                            args = None,
                                                                         )
         
         if err is None:
@@ -127,36 +188,37 @@ def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
         else:
             fit_fcst_fact['sarimax_forecast'] = 0
             
-        args['err'] = err
+        fit_args['err'] = err
     
     # with model completition            
-    if run_type in ['best_model', 'all_best']:
+    elif output_format in ['best_model', 'all_best']:
         
         train_fact = data_dict['train_fact']
         test_fact = data_dict['test_fact']
         
         if tune:
             # TODO: add logic when optimization fails
-            model_param_space = model_params[model]
-            params, trials = param_optimizer.tune(train_fact, test_fact, fcst_len, model, model_param_space, freq, epsilon)
-            args['trials'] = trials
+            param_space = model_params[model]
+            params, err = param_optimizer.tune(train_fact, test_fact, model, params=param_space, args=args)
+            fit_args['err'] = err
             
         else:
+            # TODO: accept params set by user
             params = None
             
         training_fitted_values, training_forecast, training_err = sarimax_fit_forecast(
-                                                                                    ts = train_fact['y'],
-                                                                                    fcst_len = len(test_fact),
-                                                                                    freq = freq,
-                                                                                    params = params,
-                                                                                )
+                                                                                        ts = train_fact['y'],
+                                                                                        fcst_len = len(test_fact),
+                                                                                        params = params,
+                                                                                        args = args,
+                                                                                    )
         
         complete_fitted_values, complete_forecast, complete_err = sarimax_fit_forecast(
-                                                                                    ts = complete_fact['y'],
-                                                                                    fcst_len = fcst_len,
-                                                                                    freq = freq,
-                                                                                    params = params,
-                                                                                )
+                                                                                        ts = complete_fact['y'],
+                                                                                        fcst_len = fcst_len,
+                                                                                        params = params,
+                                                                                        args = args,
+                                                                                    )
         
 #        if 'enforce_stationarity' in complete_err or '' in complete_err:
 #            
@@ -165,23 +227,24 @@ def fit_sarimax(data_dict, freq, fcst_len, model_params, run_type, tune, epsilon
 #        #TODO: if failed with 'enforce_stationarity' or 'enforce_invertibility' at complete fcst, set these to false
         
         if training_err is None and complete_err is None:
-            sarimax_loss = models_util.compute_mae(
-                                    y = test_fact['y'].values,
-                                    yhat = training_forecast.values,
-                                )
+            sarimax_wfa = models_util.compute_wfa(
+                                                    y = test_fact['y'].values,
+                                                    yhat = training_forecast.values,
+                                                    epsilon = epsilon,
+                                                )
             sarimax_fit_fcst = training_fitted_values.append(training_forecast, ignore_index=True).append(complete_forecast, ignore_index=True)
             
             fit_fcst_fact['sarimax_forecast'] = sarimax_fit_fcst.values
-            fit_fcst_fact['sarimax_loss'] = sarimax_loss
+            fit_fcst_fact['sarimax_wfa'] = sarimax_wfa
             
         else:
-            sarimax_loss = test_fact['y'].sum()
+            sarimax_wfa = -1
             fit_fcst_fact['sarimax_forecast'] = 0
-            fit_fcst_fact['sarimax_loss'] = sarimax_loss
+            fit_fcst_fact['sarimax_wfa'] = -1
             
-        args['err'] = (training_err, complete_err)
-        args['loss'] = sarimax_loss
-        args['params'] = params
+        fit_args['err'] = (training_err, complete_err)
+        fit_args['wfa'] = sarimax_wfa
+        fit_args['params'] = params
             
             
-    return fit_fcst_fact, args
+    return fit_fcst_fact, fit_args
